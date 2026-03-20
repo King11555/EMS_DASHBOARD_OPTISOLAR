@@ -7,8 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-        <!-- <link rel="stylesheet" href="../static/styles-redesign-2-hud-exp.css"> -->
-         <link rel="stylesheet" href="../static/styles_new.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <!-- <link rel="stylesheet" href="../static/styles-redesign-2-hud-exp.css"> -->
+    <link rel="stylesheet" href="../static/styles_new.css">
+
 </head>
 <body>
         <header class="hud-header">
@@ -19,13 +21,13 @@
   <div class="left-side">
         <h3>Đurđevac</h3>
     <div id="ntpClockTemp" class="status-box">
-            <div class="weather-row">
-                <div class="weather-time"><span id="ntpClock">Učitavanje...</span></div>
-                <div class="weather-meta">
-                    <img src="../static/slike/weather.png" alt="Weather Icon" class="weather-icon">
-                    <span id="temperature">Učitavanje...</span>
-                </div>
-            </div>
+		<div class="weather-row">
+			<div class="weather-time"><span id="ntpClock">Učitavanje...</span></div>
+			<div class="weather-meta">
+				<img src="../static/slike/weather.png" alt="Weather Icon" class="weather-icon">
+				<span id="temperature">Učitavanje...</span>
+			</div>
+		</div>
     </div>
   </div>
 
@@ -159,54 +161,63 @@
 
 
 <div class="scada-item">
-        <div class="scada-header">
-            <div class="scada-title">Agregirana energija</div>
-            <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
+    <div class="scada-header">
+        <div class="scada-title">Agregirana energija</div>
+        <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
+            ℹ️
+        </button>
+        <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
+            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="energy-lines">
+        <div class="energy-line">
+            <span class="energy-label" style="color: var(--green);" >
                 <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
-            </button>
+                AFRR
+            </span>
+            <span class="energy-value"><span class="register-value energy_label_font" id="energyPlus">--</span> <span class="scada-main-type"> kWh</span> </span>
         </div>
 
-        <div class="energy-lines">
-            <div class="energy-line energy-line--plus">
-                <span class="energy-label">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Afrr
-                </span>
-                <span class="energy-value"><span class="register-value energy_label_font" id="energyPlus">--</span> <span class="scada-main-type"> kWh</span> </span>
-            </div>
-            <div class="energy-line energy-line--minus">
-                <span class="energy-label">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    Afrr
-                </span>
-                <span class="energy-value"><span class="register-value energy_label_font" id="energyMinus">--</span> <span class="scada-main-type"> kWh</span> </span>
-            </div>
+        <div class="energy-line">
+													   
+            <span class="energy-label" style="color: var(--red);" >
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                AFRR
+            </span>
+            <span class="energy-value"><span class="register-value energy_label_font" id="energyMinus">--</span> <span class="scada-main-type"> kWh</span> </span>
+				  
         </div>
-        <div class="energy-lines energy-lines--summary">
-            <div class="energy-line">
-                <span class="energy-label">SUM</span>
-                <span class="energy-value"><span class="register-value energy_label_font" id="energySum">--</span> <span class="scada-main-type"> kWh</span> </span>
-            </div>
-            <div class="energy-line">
-                <span></span>
-                <span class="energy-value"><span class="register-value energy_label_font" id="cijenaSum">--</span> <span class="scada-main-type"> €</span> </span>
-            </div>
+    </div>
+    <div class="energy-lines energy-lines--summary">
+        <div class="energy-line">
+            <span class="energy-label">SUM</span>
+            <span class="energy-value"><span class="register-value energy_label_font" id="energySum">--</span> <span class="scada-main-type"> kWh</span> </span>
+			  
         </div>
+        <div class="energy-line">
+            <span></span>
+            <span class="energy-value"><span class="register-value energy_label_font" id="cijenaSum">--</span> <span class="scada-main-type"> €</span> </span>
+				  
+        </div>
+    </div>
 
-    </div>   <!-- closes last scada-item -->
-
-
+</div>   <!-- closes last scada-item -->
     <div class="scada-item">
         <div class="scada-header">
             <div class="scada-title">Bilanca energije</div>
+                <button class="date-btn date-btn--icon" onclick="openDataPopup()" type="button" aria-label="Prikaži podatke">
+                    ℹ️
+                </button>
             <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                     <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
             </button>
@@ -217,18 +228,6 @@
                 <span class="energy-label">
                     <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
                         <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    VT / NT
-                </span>
-                <span class="energy-value">
-                    <span class="register-value energy_label_font" id="energyBurzePlus">--</span> <span class="scada-main-type"> / </span> 
-                    <span class="register-value energy_label_font" id="energyBurzeNocnaPlus">--</span> <span class="scada-main-type"> kWh</span>
-            </span>
-            </div>
-            <div class="energy-line energy-line--minus">
-                <span class="energy-label">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
                     VT / NT
                 </span>
@@ -237,20 +236,33 @@
                     <span class="register-value energy_label_font" id="energyBurzeNocnaMinus">--</span> <span class="scada-main-type"> kWh</span>
                 </span>
             </div>
+            <div class="energy-line energy-line--minus">
+                <span class="energy-label">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                        <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    VT / NT
+                </span>
+                <span class="energy-value">
+                    <span class="register-value energy_label_font" id="energyBurzePlus">--</span> <span class="scada-main-type"> / </span> 
+                    <span class="register-value energy_label_font" id="energyBurzeNocnaPlus">--</span> <span class="scada-main-type"> kWh</span>
+                </span>
+            </div>
         </div>
+		  
         <div class="energy-lines energy-lines--summary">
             <div class="energy-line">
-                <span class="energy-label">SUM VT / NT</span>
+                <span class="energy-label">SUM + / -</span>
                 <span class="energy-value">
-                    <span class="register-value energy_label_font" id="energyBurzeSum">--</span>  <span class="scada-main-type"> / </span> 
-                    <span class="register-value energy_label_font" id="energyBurzeNocnaSum">--</span> <span class="scada-main-type"> kWh</span>
+                    <span class="register-value energy_label_font" id="energyBurzeMinusSum">--</span> <span class="scada-main-type"> / </span>
+                    <span class="register-value energy_label_font" id="energyBurzePlusSum">--</span>  <span class="scada-main-type"> kWh</span> 
                 </span>
             </div>
             <div class="energy-line">
                 <span></span>
                 <span class="energy-value">
-                    <span class="register-value energy_label_font" id="cijenaBurzeSum">--</span> <span class="scada-main-type"> / </span> 
-                    <span class="register-value energy_label_font" id="cijenaBurzeNocnaSum">--</span> <span class="scada-main-type"> €</span>
+                    <span class="register-value energy_label_font" id="cijenaBurzeMinus">--</span> <span class="scada-main-type"> / </span>
+                    <span class="register-value energy_label_font" id="cijenaBurzePlus">--</span> <span class="scada-main-type"> €</span> 
                 </span>
             </div>
         </div>
@@ -258,8 +270,8 @@
             <div class="energy-line" style="width: 50%;">
                 <span class="energy-label">CROPEX: </span><span class="register-value energy_label_font scada-main-type" id="ENTSOE_cijena">--</span><span class="scada-main-type"> €</span>
             </div>            
-            <div class="energy-line" style="width: 50%;">
-                <span class="energy-label">Ukupno: </span><span class="register-value energy_label_font" id="cijenaUkupno">--</span><span class="scada-main-type"> €</span>
+            <div class="energy-line" style="width: 50%; justify-content: left; gap:3px">
+                <span class="energy-label">UKUPNO: </span><span class="register-value energy_label_font" id="cijenaUkupno">--</span><span class="scada-main-type"> €</span>
             </div>
         </div>
     </div>   <!-- closes last scada-item -->
@@ -288,19 +300,19 @@
 
     <div class="register-card">
         <div class="power-row">
-            <div class="power-block">
+            <div class="power-block right">
                 <div class="register-label">ΔP - potrošnja</div>
+                <div class="value">
+                    <span id="M_DELTA_NEG_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
+                </div>
+            </div>
+            <div class="power-block">
+                <div class="register-label">ΔP - proizvodnja</div>
                 <div class="value">
                     <span id="M_DELTA_POS_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
                 </div>
             </div>
 
-            <div class="power-block right">
-                <div class="register-label">ΔP - proizvodnja</div>
-                <div class="value">
-                    <span id="M_DELTA_NEG_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
-                </div>
-            </div>
         </div>
     </div>
 
@@ -322,12 +334,11 @@
         </div>
         
         <div class="modbus-values">
-            <div>HEP - podešena snaga <span id="M_HEP_podeseno" class="register-value">0</span> <span class="scada-main-type"> %</span>
+            <div>HEP - podešena snaga <span id="M_HEP_podeseno" class="register-value">0</span> 
+                <span class="scada-main-type"> %</span>
             </div>
         </div>
     </div>
-    
-
 </div>
 
 <div class="radio-wrapper">
@@ -456,41 +467,218 @@
 </div>
 
 <!-- DATE SELECTION MODAL -->
-<div id="dateModal" class="modal" style="display:none;">
-
-  <div class="modal-content" style="max-width:350px;">
-
-                <div class="modal-header">
-                    <h3>Odabir razdoblja</h3>
-                    <span class="close-btn" onclick="closeDateModal()">&times;</span>
-                </div>
-
-        <div class="form-grid form-grid--narrow">
+<div class="popup_overlay" id="overlayDate">
+    <div class="popup" id="popupDate" style="width: 290px;">
+        <div class="popup_header">
+            <h3>Odabir razdoblja</h3>
+            <span class="close-btn" onclick="closePopup()">&times;</span>
+        </div>
+        <div class="popup_divider"></div>
+        <div class="popup_row" style="display: block;">
             <label for="startDate" class="form-label">Početni datum:</label>
-            <div class="form-field">
-                <input type="date" id="startDate">
+            <div>
+                <input type="text" id="startDate">
             </div>
 
             <label for="endDate" class="form-label">Završni datum:</label>
-            <div class="form-field">
-                <input type="date" id="endDate">
+            <div>
+                <input type="text" id="endDate">
             </div>
 
             <div class="form-actions">
-                <button onclick="sendDateRange(); closeDateModal();">Pošalji</button>
+                <button onclick="sendDateRange(); closePopup();">Pošalji</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="popup_overlay" id="overlay">
+    <div class="popup" id="popup">
+        <div class="popup_close-btn" onclick="closePopup()">✕</div>
+
+        <div class="popup_header">
+            <h3>PARAMETRI IZRAČUNA CIJENE ENERGIJE</h3>
+        </div>
+
+        <div class="popup_divider"></div>
+
+        <div class="popup_row">
+            <span>Vrsta prodaje: </span>
+            <span class="register-value energy_label_font" id="vrstaProdaje"></span> 
+        </div>
+
+        <div class="popup_row">
+            <span>Koeficijent prodaje: </span>
+            <span class="register-value energy_label_font" id="koeficijentProdaje"></span> 
+        </div>
+
+        <div class="popup_row">
+            <span>Vrsta kupovine: </span>
+            <span class="register-value energy_label_font" id="vrstaKupovine"></span> 
+        </div>
+
+        <div class="popup_row">
+            <span>Koeficijent kupovine: </span>
+            <span class="register-value energy_label_font" id="koeficijentKupovine"></span> 
+        </div>
+
+        <div class="popup_divider"></div>
+
+        <div class="popup_row">
+            <span>Trošarina: </span>
+            <div>
+                <span class="register-value energy_label_font" id="trosarina"></span> <span class="scada-main-type"> €/kWh</span> 
             </div>
         </div>
 
-  </div>
+        <div class="popup_row">
+            <span>Mrežarina (VT): </span>
+            <div>
+                <span class="register-value energy_label_font" id="mrezarinaVT"></span> <span class="scada-main-type"> €/kWh</span> 
+            </div>            
+        </div>
+
+        <div class="popup_row">
+            <span>Mrežarina (NT): </span>
+            <div>
+                <span class="register-value energy_label_font" id="mrezarinaNT"></span> <span class="scada-main-type"> €/kWh</span> 
+            </div>
+        </div>
+
+        <div class="popup_row">
+            <span>OIE: </span>
+            <div>
+                <span class="register-value energy_label_font" id="OIE"></span><span class="scada-main-type"> €/kWh</span> 
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<div class="popup_overlay" id="overlayAFRR">
+    <div class="popup" id="popupAFRR">
+        <div class="popup_close-btn" onclick="closePopup()">✕</div>
+
+        <div class="popup_header">
+            <h3>PARAMETRI IZRAČUNA CIJENE AGREGACIJE</h3>
+        </div>
+
+        <div class="popup_divider"></div>
+
+        <div class="popup_row">
+            <span>AFRR +: </span>
+            <div>
+                <span class="register-value energy_label_font" id="CijenaAgregacijePlus"></span> <span class="scada-main-type"> €/kWh</span> 
+            </div>
+        </div>
+
+        <div class="popup_row">
+            <span>AFRR -: </span>
+            <div>
+                <span class="register-value energy_label_font" id="CijenaAgregacijeMinus"></span> <span class="scada-main-type"> €/kWh</span> 
+            </div>
+        </div>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>																								  
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>				
+<script src="https://npmcdn.com/flatpickr/dist/l10n/hr.js"></script>																				  
+
 <script>
-    
+function updateColor() {
+    const el = document.getElementById("cijenaUkupno");
+    let value = parseFloat(el.textContent);
+
+    if (!isNaN(value)) {
+        if (value > 0) {
+            el.style.color = "var(--green)";
+        } else {
+            el.style.color = "var(--red)";
+        }
+    }
+}   
+function openDataPopup() {
+
+    const vrstaProdaje =document.getElementById("vrstaProdaje");
+    vrstaProdaje.textContent=backend_map["M_Vrsta_prodaje"].value;
+
+    const koeficijentProdaje =document.getElementById("koeficijentProdaje");
+    koeficijentProdaje.textContent=backend_map["M_Koeficijent_prodaje"].value;
+
+    const vrstaKupovine =document.getElementById("vrstaKupovine");
+    vrstaKupovine.textContent=backend_map["M_Vrsta_kupovine"].value;
+
+    const koeficijentKupovine =document.getElementById("koeficijentKupovine");
+    koeficijentKupovine.textContent=backend_map["M_Koeficijent_kupovine"].value;
+
+    const trosarina =document.getElementById("trosarina");
+    trosarina.textContent=backend_map["M_Trosarina"].value;
+
+    const mrezarinaVT =document.getElementById("mrezarinaVT");
+    mrezarinaVT.textContent=backend_map["M_Mrezarina_VT"].value;
+
+    const mrezarinaNT =document.getElementById("mrezarinaNT");
+    mrezarinaNT.textContent=backend_map["M_Mrezarina_NT"].value;
+
+    const OIE =document.getElementById("OIE");
+    OIE.textContent=backend_map["M_OIE"].value;
+
+    const overlay = document.getElementById("overlay");
+
+    overlay.style.display = "flex";   // make it visible again
+
+    // small delay ensures animation works properly
+    setTimeout(() => {
+        overlay.classList.remove("hidden");
+    }, 10);
+}
+function openDataPopupAFRR() {
+
+    const CijenaAgregacijePlus =document.getElementById("CijenaAgregacijePlus");
+    CijenaAgregacijePlus.textContent=backend_map["M_Cijena_agregacije_plus"].value;
+
+    const CijenaAgregacijeMinus =document.getElementById("CijenaAgregacijeMinus");
+    CijenaAgregacijeMinus.textContent=backend_map["M_Cijena_agregacije_minus"].value;
+
+
+    const overlayAFRR = document.getElementById("overlayAFRR");
+
+    overlayAFRR.style.display = "flex";   // make it visible again
+
+    // small delay ensures animation works properly
+    setTimeout(() => {
+        overlayAFRR.classList.remove("hidden");
+    }, 10);
+}
+
+function closePopup() {
+    const overlay = document.getElementById("overlay");
+    overlay.classList.add("hidden");
+
+    const overlayAFRR = document.getElementById("overlayAFRR");
+    overlayAFRR.classList.add("hidden");
+
+    const overlayDate = document.getElementById("overlayDate");
+    overlayDate.classList.add("hidden");
+
+    setTimeout(() => {
+        overlay.style.display = "none";
+    }, 300);
+}
+
+// Close with ESC key
+document.addEventListener("keydown", function(e) {
+    if (e.key === "Escape") {
+        closePopup();
+    }
+});
+
 //kompletna mapa s backenda na frontend
 const backend_map ={
     "M_PV_proizvodnja": {value: 0},
+    "M_PV_proizvodnja_VIZ": {value: 0},
     "MAX_PV_proizvodnja": {value: 0},
     "M_PV_postotak": {value: 0},
     "M_EnergyMeter": {value:0},
@@ -515,31 +703,85 @@ const backend_map ={
     "M_cijenaSum":{value:0},
     "M_energyBurzePlus":{value:0},
     "M_energyBurzeMinus":{value:0},
-    "M_energyBurzeSum":{value:0},
-    "M_cijenaBurzeSum":{value:0},
+    "M_energyBurzePlusSum":{value:0},
+    "M_cijenaBurzePlus":{value:0},
     "M_energyBurzeNocnaPlus":{value:0},
     "M_energyBurzeNocnaMinus":{value:0},
-    "M_energyBurzeNocnaSum":{value:0},
-    "M_cijenaBurzeNocnaSum":{value:0},
+    "M_energyBurzeMinusSum":{value:0},
+    "M_cijenaBurzeMinus":{value:0},
     "M_cijenaUkupno":{value:0},
     "M_PV_prediction":{value:0},
     "M_CS_prediction":{value:0},
     "M_PASSWORD":{value:null},
-    "M_ENTSOE_cijena":{value:0}
+    "M_ENTSOE_cijena":{value:0},
+    "M_Vrsta_prodaje":{value:0},
+    "M_Koeficijent_prodaje":{value:0},
+    "M_Vrsta_kupovine":{value:0},
+    "M_Koeficijent_kupovine":{value:0},
+    "M_Trosarina":{value:0},
+    "M_Mrezarina_VT":{value:0},
+    "M_Mrezarina_NT":{value:0},
+    "M_OIE":{value:0},
+    "M_Cijena_agregacije_plus":{value:0},
+    "M_Cijena_agregacije_minus":{value:0}
 };
-    
+	
 
-	const writeRegistersList = [
-            { id: 40380, description: "Snaga elektrane - ručno", explanation: "(%) 100% = 215 kW", bit_size:16, gain: 10, client: "A" },
-            { id: 40383, description: "Snaga baterija - ručno", explanation: "- = punjenje, + = pražnjenje ", bit_size:16, gain: 10, client: "A" }
+
+const writeRegistersList = [
+            { id: 40493, description: "Maksimalna proizvodnja elektrane - ručno", explanation: "(%) 100% = 1250 kW", bit_size:16, gain: 100, client: "A" },
+            { id: 41315, description: "DM OL/CL", explanation: "3353-CL, 3352-OL", bit_size:32, gain: 1, client: "A" }
         ];
 //...............KALENDAR ZA ODABIR DATUMA........................
 
+flatpickr("#startDate", {
+    locale: "hr",
+    defaultDate: new Date()
+});
+
+flatpickr("#endDate", {
+    locale: "hr",
+    defaultDate: new Date()
+});
+
+let startPicker;
+let endPicker;    
+let today 
+let firstDay 
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    startPicker = flatpickr("#startDate", {
+        dateFormat: "d.m.Y.",
+        onChange: function(selectedDates) {
+            endPicker.set("minDate", selectedDates[0]);
+        }
+    });
+
+    endPicker = flatpickr("#endDate", {
+        dateFormat: "d.m.Y.",
+        onChange: function(selectedDates) {
+            startPicker.set("maxDate", selectedDates[0]);
+        }
+    });
+
+});
+
+function formatDate(dateStr) {
+    const [day, month, year] = dateStr.split('.');
+    return `${year}-${month}-${day}`;
+}
+
 function sendDateRange() {
 
-    const start = document.getElementById("startDate").value;
-    const end = document.getElementById("endDate").value;
+    const startRaw = document.getElementById("startDate").value;
+    const endRaw = document.getElementById("endDate").value;
+    today = endRaw
+    firstDay = startRaw
 
+    const start = formatDate(startRaw);
+    const end = formatDate(endRaw);
+    
     if (!start || !end) {
         alert("Odaberi datume");
         return;
@@ -557,8 +799,6 @@ function sendDateRange() {
     })
     .catch(() => alert("Greška"));
 }
-
-
 //...............Dohvat podataka s backenda........................
 
 function fetchAndUpdateValues() {
@@ -582,6 +822,7 @@ function fetchAndUpdateValues() {
             }
         })
         .catch(err => console.error("Error fetching mode:", err));  
+    updateColor();
 }
 
 //...............Periodičko slanje na backend........................
@@ -655,31 +896,39 @@ window.onclick = function(event) {
 /* Open / Close modal */
 
 function openDateModal() {
-    setDefaultDates();   // ensure defaults
-    document.getElementById("dateModal").style.display = "block";
-}
+    
+    startPicker.setDate(firstDay);
+    endPicker.setDate(today);
 
-function closeDateModal() {
-    document.getElementById("dateModal").style.display = "none";
-}
+						   
+    const overlayDate = document.getElementById("overlayDate");
+ 
 
+    overlayDate.style.display = "flex";   // make it visible again
+
+    // small delay ensures animation works properly
+    setTimeout(() => {
+        overlayDate.classList.remove("hidden");
+    }, 10);
+    
+}
 
 /* Default dates (timezone safe) */
 
 function setDefaultDates() {
 
-    const today = new Date();
+    today = new Date();
 
     function formatDateLocal(date) {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, "0");
         const d = String(date.getDate()).padStart(2, "0");
-        return `${y}-${m}-${d}`;
+        return `${d}.${m}.${y}.`;
     }
-
+      
     const endDate = formatDateLocal(today);
 
-    const firstDay = new Date(
+    firstDay = new Date(
         today.getFullYear(),
         today.getMonth(),
         1
@@ -690,9 +939,6 @@ function setDefaultDates() {
     document.getElementById("startDate").value = startDate;
     document.getElementById("endDate").value = endDate;
 }
-
-
-
 //...............Render prozora za upis podataka........................
     
 function createWriteRegisterRow(register) {
@@ -1125,8 +1371,8 @@ function glavni_program() {
 
 
     // Update SCADA visuals
-    const ELEKTRANA_SCADA = document.getElementById("Slika_elektrana");
-    ELEKTRANA_SCADA.textContent = backend_map['M_PV_proizvodnja'].value;
+    const ELEKTRANA_SCADA_VIZ = document.getElementById("Slika_elektrana");
+    ELEKTRANA_SCADA_VIZ.textContent = backend_map['M_PV_proizvodnja_VIZ'].value;
 
     const ActivePower = document.getElementById("Slika_Janitza");
     ActivePower.textContent = backend_map['M_EnergyMeter'].value;
@@ -1165,11 +1411,11 @@ function glavni_program() {
     const energyBurzeMinus=document.getElementById("energyBurzeMinus");
     energyBurzeMinus.textContent=backend_map["M_energyBurzeMinus"].value; 
     
-    const energyBurzeSum=document.getElementById("energyBurzeSum");
-    energyBurzeSum.textContent=backend_map["M_energyBurzeSum"].value; 
+    const energyBurzePlusSum=document.getElementById("energyBurzePlusSum");
+    energyBurzePlusSum.textContent=backend_map["M_energyBurzePlusSum"].value; 
     
-    const cijenaBurzeSum=document.getElementById("cijenaBurzeSum");
-    cijenaBurzeSum.textContent=backend_map["M_cijenaBurzeSum"].value; 
+    const cijenaBurzePlus=document.getElementById("cijenaBurzePlus");
+    cijenaBurzePlus.textContent=backend_map["M_cijenaBurzePlus"].value; 
     
     const energyBurzeNocnaPlus=document.getElementById("energyBurzeNocnaPlus");
     energyBurzeNocnaPlus.textContent=backend_map["M_energyBurzeNocnaPlus"].value; 
@@ -1177,11 +1423,11 @@ function glavni_program() {
     const energyBurzeNocnaMinus=document.getElementById("energyBurzeNocnaMinus");
     energyBurzeNocnaMinus.textContent=backend_map["M_energyBurzeNocnaMinus"].value; 
     
-    const energyBurzeNocnaSum=document.getElementById("energyBurzeNocnaSum");
-    energyBurzeNocnaSum.textContent=backend_map["M_energyBurzeNocnaSum"].value; 
+    const energyBurzeMinusSum=document.getElementById("energyBurzeMinusSum");
+    energyBurzeMinusSum.textContent=backend_map["M_energyBurzeMinusSum"].value; 
     
-    const cijenaBurzeNocnaSum=document.getElementById("cijenaBurzeNocnaSum");
-    cijenaBurzeNocnaSum.textContent=backend_map["M_cijenaBurzeNocnaSum"].value; 
+    const cijenaBurzeMinus=document.getElementById("cijenaBurzeMinus");
+    cijenaBurzeMinus.textContent=backend_map["M_cijenaBurzeMinus"].value; 
 
     const cijenaUkupno=document.getElementById("cijenaUkupno");
     cijenaUkupno.textContent=backend_map["M_cijenaUkupno"].value; 
@@ -1216,9 +1462,9 @@ function glavni_program() {
     const M_HEP_podeseno =document.getElementById("M_HEP_podeseno");
     M_HEP_podeseno.textContent=backend_map["M_HEP_podeseno"].value;
 
-        //update setpointa enna 
-        const ENNA_VIZ=document.getElementById("ENNA_ackt_viz"); 
-        const ENNA_ACKT_instanca=backend_map["M_ENNA_ACKT"].value; 
+	//update setpointa enna 
+	const ENNA_VIZ=document.getElementById("ENNA_ackt_viz"); 
+	const ENNA_ACKT_instanca=backend_map["M_ENNA_ACKT"].value; 
 
     if (ENNA_ACKT_instanca==1){ 
         // ENNA_VIZ.style.backgroundColor ="#aa0000" // CRV 
