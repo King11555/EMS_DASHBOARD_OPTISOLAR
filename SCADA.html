@@ -285,14 +285,14 @@
             <div class="power-block">
                 <div class="register-label">Max AFRR-</div>
                 <div class="value">
-                    <span id="M_ABS_POS_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
+                    <span id="M_ABS_NEG_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
                 </div>
             </div>
 
             <div class="power-block right">
                 <div class="register-label">Max AFRR+</div>
                 <div class="value">
-                    <span id="M_ABS_NEG_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
+                    <span id="M_ABS_POS_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
                 </div>
             </div>
         </div>
@@ -753,6 +753,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     startPicker = flatpickr("#startDate", {
         dateFormat: "d.m.Y.",
+        locale: "hr",          
         onChange: function(selectedDates) {
             endPicker.set("minDate", selectedDates[0]);
         }
@@ -760,6 +761,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     endPicker = flatpickr("#endDate", {
         dateFormat: "d.m.Y.",
+        locale: "hr",          
         onChange: function(selectedDates) {
             startPicker.set("maxDate", selectedDates[0]);
         }
@@ -782,7 +784,7 @@ function sendDateRange() {
     const start = formatDate(startRaw);
     const end = formatDate(endRaw);
     
-    if (!start || !end) {
+    if (!start || !end || start == "undefined-undefined-" || end == "undefined-undefined-") {
         alert("Odaberi datume");
         return;
     }
