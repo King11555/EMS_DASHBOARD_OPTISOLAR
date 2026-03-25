@@ -8,18 +8,17 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <!-- <link rel="stylesheet" href="../static/styles-redesign-2-hud-exp.css"> -->
     <link rel="stylesheet" href="../static/styles_new.css">
 
 </head>
 <body>
         <header class="hud-header">
             <div class="hud-header__inner">
-                <h1>EMS SE KOTLAR III</h1>
+                <h1 id="M_naziv_elektrane"></h1>
 
 <div class="prvi_podaci hud-header__row">
   <div class="left-side">
-        <h3>Đurđevac</h3>
+        <h3 id="M_lokacija"></h3>
     <div id="ntpClockTemp" class="status-box">
 		<div class="weather-row">
 			<div class="weather-time"><span id="ntpClock">Učitavanje...</span></div>
@@ -58,11 +57,11 @@
 <div class="container1">
 
     <div class="scada-item" id="pv-plant">
-        <a href="https://192.168.0.3/" target="_blank" style="text-decoration:none; color:inherit;">
+        <a id="M_url_DM" href="" target="_blank" style="text-decoration:none; color:inherit;">
             <div class="scada-title">Sunčana elektrana</div>
         </a>
         <div class="scada-row">
-            <a href="https://192.168.0.3/" target="_blank" style="text-decoration:none; color:inherit;">
+            <a id="M_url_DM_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
                 <img src="../static/icons/icon-panel-3.png" alt="PV Plant" class="scada-icon scada-icon--row">
             </a>
             <div>
@@ -72,7 +71,7 @@
     
         <div class="soc-progress" aria-hidden="true">
             <div class="soc-track"><div class="soc-fill" id="pvFill"></div></div>
-            <div class="soc-labels"><span>0 kW</span><span>215 kW</span></div>
+            <div class="soc-labels"><span>0 kW</span><span id="M_max_PV_proizvodnja"></span></div>
         </div>
 
         <div style="display: ruby;">
@@ -86,11 +85,11 @@
 
     
     <div class="scada-item">
-        <a href="https://192.168.0.3/" target="_blank">
+        <a id="M_url_ESS" href="" target="_blank">
             <div class="scada-title">Baterija</div>
         </a>
         <div class="battery-row">            
-            <a href="https://192.168.0.3/" target="_blank" >
+            <a id="M_url_ESS_2" href="" target="_blank" >
                 <img src="../static/icons/icon-battery-2.png" alt="Baterija" class="scada-icon scada-icon--row battery-icon">
             </a>
             <div class="battery-info">
@@ -116,7 +115,7 @@
     <div class="scada-item" >
         <div class="scada-title">Potrošnja</div>
         <div class="scada-row">
-            <a href="http://192.168.0.2/" target="_blank" style="text-decoration:none; color:inherit;">
+            <a id="M_url_HEP" href="" target="_blank" style="text-decoration:none; color:inherit;">
                 <img src="../static/icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row scada-icon--miner">
             </a>             
             <div>
@@ -126,12 +125,12 @@
     </div>
 
 
- <div class="scada-item" id="pv-plant">
-        <a href="http://192.168.0.2/" target="_blank" style="text-decoration:none; color:inherit;">
+    <div class="scada-item" id="pv-plant">
+        <a id="M_url_HEP_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
             <div class="scada-title">Snaga prema mreži (HEP)</div>
         </a>
         <div class="scada-row">
-            <a href="http://192.168.0.2/" target="_blank" style="text-decoration:none; color:inherit;">
+            <a id="M_url_HEP_3" href="" target="_blank" style="text-decoration:none; color:inherit;">
                 <img src="../static/icons/icon-grid-2.png" alt="Transformer" class="scada-icon scada-icon--row">
             </a>                      
             <div>
@@ -209,6 +208,11 @@
         </div>
     </div>
 
+    <div style="display: flex;">
+        <div class="energy-line" style="width: 60%; gap: 6px;">
+            <span class="energy-label">ACE OL: </span><span class="register-value energy_label_font scada-main-type" id="ACE_OL">--</span><span class="scada-main-type"> MW</span>
+        </div>     
+    </div>
 </div>   <!-- closes last scada-item -->
     <div class="scada-item">
         <div class="scada-header">
@@ -450,14 +454,6 @@
             <div class="form-field form-field--stack">
                 <input type="number" id="SOC-bat-auto" placeholder="Unesite vrijednost">
                 <button onclick="sendManualValue()">Pošalji</button>
-            </div>
-
-            <label class="form-label">Upravljanje minerima: on/off:</label>
-            <div class="form-field">
-                <div class="btn-row">
-                    <button onclick="mineriPause()">Pause</button>
-                    <button onclick="mineriResume()">Resume</button>
-                </div>
             </div>
         </div>
     
@@ -723,14 +719,21 @@ const backend_map ={
     "M_Mrezarina_NT":{value:0},
     "M_OIE":{value:0},
     "M_Cijena_agregacije_plus":{value:0},
-    "M_Cijena_agregacije_minus":{value:0}
+    "M_Cijena_agregacije_minus":{value:0},
+    "M_naziv_elektrane":{value:""},
+    "M_lokacija":{value:""},
+    "M_url_DM":{value:""},
+    "M_url_ESS":{value:""},
+    "M_url_HEP":{value:""},
+    "M_max_PV_proizvodnja":{value:""},
+    "M_ACE_OL":{value:0}
 };
 	
 
 
 const writeRegistersList = [
-            { id: 40493, description: "Maksimalna proizvodnja elektrane - ručno", explanation: "(%) 100% = 1250 kW", bit_size:16, gain: 100, client: "A" },
-            { id: 41315, description: "DM OL/CL", explanation: "3353-CL, 3352-OL", bit_size:32, gain: 1, client: "A" }
+            { id: 40380, description: "Snaga elektrane - ručno", explanation: "(%) 100% = 215 kW", bit_size:16, gain: 10, client: "A" },
+            { id: 40383, description: "Snaga baterija - ručno", explanation: "- = punjenje, + = pražnjenje ", bit_size:16, gain: 10, client: "A" }
         ];
 //...............KALENDAR ZA ODABIR DATUMA........................
 
@@ -1480,6 +1483,28 @@ function glavni_program() {
 
     ENNA_setpoint_scada.textContent = ENNA_setpoint_scada_instanca; //ručni automatski upis -resfresh instanca 
 
+    const M_naziv_elektrane =document.getElementById("M_naziv_elektrane");
+    M_naziv_elektrane.textContent=backend_map["M_naziv_elektrane"].value;
+
+    const M_lokacija =document.getElementById("M_lokacija");
+    M_lokacija.textContent=backend_map["M_lokacija"].value;
+
+    const M_max_PV_proizvodnja =document.getElementById("M_max_PV_proizvodnja");
+    M_max_PV_proizvodnja.textContent=backend_map["M_max_PV_proizvodnja"].value;
+
+    // const M_url_DM =document.getElementById("M_url_DM");
+    // M_url_DM.textContent=backend_map["M_url_DM"].value;
+    document.getElementById("M_url_DM").href = backend_map["M_url_DM"].value;
+    document.getElementById("M_url_DM_2").href = backend_map["M_url_DM"].value;
+    
+    document.getElementById("M_url_ESS").href = backend_map["M_url_ESS"].value;
+    document.getElementById("M_url_ESS_2").href = backend_map["M_url_ESS"].value;
+    
+    document.getElementById("M_url_HEP").href = backend_map["M_url_HEP"].value;
+    document.getElementById("M_url_HEP_2").href = backend_map["M_url_HEP"].value;
+    document.getElementById("M_url_HEP_3").href = backend_map["M_url_HEP"].value;
+    const M_ACE_OL =document.getElementById("ACE_OL");
+    M_ACE_OL.textContent=backend_map["M_ACE_OL"].value; 
 }
 
 // ---------------- On page load ----------------
