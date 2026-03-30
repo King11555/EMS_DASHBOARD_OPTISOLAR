@@ -1,1770 +1,639 @@
 <!DOCTYPE html>
 <html lang="hr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Automatski sustav upravljanja EMS</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-    <link rel="stylesheet" href="../static/styles_new.css">
-
-</head>
-<body>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Automatski sustav upravljanja EMS</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+        <link rel="stylesheet" href="../static/styles.css">
+    </head>
+    <body>
         <header class="hud-header">
             <div class="hud-header__inner">
                 <h1 id="M_naziv_elektrane"></h1>
 
-<div class="prvi_podaci hud-header__row">
-  <div class="left-side">
-        <h3 id="M_lokacija"></h3>
-    <div id="ntpClockTemp" class="status-box">
-		<div class="weather-row">
-			<div class="weather-time"><span id="ntpClock">Učitavanje...</span></div>
-			<div class="weather-meta">
-				<img src="../static/slike/weather.png" alt="Weather Icon" class="weather-icon">
-				<span id="temperature">Učitavanje...</span>
-			</div>
-		</div>
-    </div>
-  </div>
+                <div class="prvi_podaci hud-header__row">
+                    <div class="left-side">
+                        <h3 id="M_lokacija"></h3>
+                        <div id="ntpClockTemp" class="status-box">
+                            <div class="weather-row">
+                                <div class="weather-time"><span id="ntpClock">Učitavanje...</span></div>
+                                <div class="weather-meta">
+                                    <img src="../static/slike/weather.png" alt="Weather Icon" class="weather-icon">
+                                    <span class= "temperature" id="temperature">Učitavanje...</span><span class= "temperature" > °C</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-  <div class="right-side">
-    <h3>NAČIN RADA</h3>
-    <div class="mode-toggle">
-            <button id="manualBtn" onclick="setMode('ručni')">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M12 20h9" />
-                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
-                </svg>
-                <span>Ručni</span>
-            </button>
-            <button id="autoBtn" class ="active" onclick="setMode('automatski')">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M22 2 11 13" />
-                    <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
-                </svg>
-                <span>Automatski</span>
-            </button>
-    </div>
-  </div>
-</div>
-
+                    <div class="right-side">
+                        <h3>NAČIN RADA</h3>
+                        <div class="mode-toggle">
+                            <button type="button" id="manualBtn" onclick="setMode('ručni')">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M12 20h9" />
+                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5Z" />
+                                </svg>
+                                <span>Ručni</span>
+                            </button>
+                            <button type="button" id="autoBtn" class ="active" onclick="setMode('automatski')">
+                                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                    <path d="M22 2 11 13" />
+                                    <path d="M22 2 15 22l-4-9-9-4 20-7Z" />
+                                </svg>
+                                <span>Automatski</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </header>
 
-<div class="container1">
-
-    <div class="scada-item" id="pv-plant">
-        <a id="M_url_DM" href="" target="_blank" style="text-decoration:none; color:inherit;">
-            <div class="scada-title">Sunčana elektrana</div>
-        </a>
-        <div class="scada-row">
-            <a id="M_url_DM_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                <img src="../static/icons/icon-panel-3.png" alt="PV Plant" class="scada-icon scada-icon--row">
-            </a>
-            <div>
-                <span class="scada-main" id="Slika_elektrana">--</span> <span class="scada-main-type"> kW</span> 
-            </div>
-        </div>
-    
-        <div class="soc-progress" aria-hidden="true">
-            <div class="soc-track"><div class="soc-fill" id="pvFill"></div></div>
-            <div class="soc-labels"><span>0 kW</span><span id="M_max_PV_proizvodnja"></span></div>
-        </div>
-
-        <div style="display: ruby;">
-            <span class="register-label">Procjena proizvodnje: </span>
-            
-            <div class="text-right">
-                <span class="scada-main-type" id="maxPVprocjena">--</span> <span class="scada-main-type"> kW</span> 
-            </div>
-       </div>
-    </div>
-
-    
-    <div class="scada-item">
-        <a id="M_url_ESS" href="" target="_blank">
-            <div class="scada-title">Baterija</div>
-        </a>
-        <div class="battery-row">            
-            <a id="M_url_ESS_2" href="" target="_blank" >
-                <img src="../static/icons/icon-battery-2.png" alt="Baterija" class="scada-icon scada-icon--row battery-icon">
-            </a>
-            <div class="battery-info">
-                <div>
-                    <span class="scada-main" id="Slika_baterija_snaga">--</span> <span class="scada-main-type"> kW</span> 
+        <div class="container1">
+            <div class="scada-item" id="pv-plant">
+                <a id="M_url_DM" href="" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div class="scada-title">Sunčana elektrana</div>
+                </a>
+                <div class="scada-row">
+                    <a id="M_url_DM_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
+                        <img src="../static/icons/icon-panel-3.png" alt="PV Plant" class="scada-icon scada-icon--row">
+                    </a>
+                    <div>
+                        <span class="scada-main" id="Slika_elektrana">--</span> <span class="scada-main-type"> kW</span> 
+                    </div>
                 </div>
-                <div class="scada-sub">SOC: <span id="Slika_baterija_SOC">50 %</span></div>
-            </div>
-        </div>
-        <div class="soc-progress" aria-hidden="true">
-            <div class="soc-track"><div class="soc-fill" id="socFillNew"></div></div>
-            <div class="soc-labels"><span>0%</span><span>100%</span></div>
-        </div>
-        
-        <div >            
-            <div style="display: ruby;">
-                <span class="register-label text-right">Optimalni SOC: </span> <span class="scada-main-type" id="SOC_AUTO">--</span> <span class="scada-main-type"> %</span> 
-            </div>
-        </div>
-    </div>
-
-  
-    <div class="scada-item" >
-        <div class="scada-title">Potrošnja</div>
-        <div class="scada-row">
-            <a id="M_url_HEP" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                <img src="../static/icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row scada-icon--miner">
-            </a>             
-            <div>
-                <span class="scada-main" id="Slika_potrosnja">--</span> <span class="scada-main-type"> kW</span>
-            </div>
-        </div>        
-    </div>
-
-
-    <div class="scada-item" id="pv-plant">
-        <a id="M_url_HEP_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
-            <div class="scada-title">Snaga prema mreži (HEP)</div>
-        </a>
-        <div class="scada-row">
-            <a id="M_url_HEP_3" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                <img src="../static/icons/icon-grid-2.png" alt="Transformer" class="scada-icon scada-icon--row">
-            </a>                      
-            <div>
-                <span class="scada-main" id="Slika_Janitza">--</span> <span class="scada-main-type"> kW</span>
-            </div>
             
-        </div>
-            <br>
-            <div style="display: ruby;" class="scada-sub">
-                <span class="register-label text-right">Baseline: </span> <span class="scada-main-type" id="Baseline">--</span> <span class="scada-main-type"> kW</span> 
-            </div>   
-            <div class="setpoint-row scada-title " style="padding-bottom: 0px; margin-bottom: 0px;">
-                <span class="register-label" style="margin-bottom: 0px;">
-                    Aktivacija (setpoint):
-                </span>
-                
-                <div class="text-right" style="padding-bottom: 6px;">
-                    <span class="scada-main" id="ENNA_setpoint_scada">--</span>
-                    <span class="scada-main-type"> kW</span> 
+                <div class="soc-progress" aria-hidden="true">
+                    <div class="soc-track">
+                        <div class="soc-fill" id="pvFill"></div>
+                    </div>
+                    <div class="soc-labels">
+                        <span>0 kW</span>
+                        <span id="M_max_PV_proizvodnja"></span>
+                    </div>
+                </div>
+
+                <div style="display: ruby;">
+                    <span class="register-label">Procjena proizvodnje: </span>            
+                    <div class="text-right">
+                        <span class="scada-main-type" id="maxPVprocjena">--</span> 
+                        <span class="scada-main-type"> kW</span> 
+                    </div>
                 </div>
             </div>
             
-        <div id="ENNA_ackt_viz" class="status-window on_bottom" role="status" aria-live="polite" data-state="unknown">
-            Neaktivna
-        </div>
-    </div>
-
-
-<div class="scada-item">
-    <div class="scada-header">
-        <div class="scada-title">Agregirana energija</div>
-        <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
-            ℹ️
-        </button>
-        <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
-            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
-        </button>
-    </div>
-
-    <div class="energy-lines">
-        <div class="energy-line">
-            <span class="energy-label" style="color: var(--green);" >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                AFRR
-            </span>
-            <span class="energy-value"><span class="register-value energy_label_font" id="energyPlus">--</span> <span class="scada-main-type"> kWh</span> </span>
-        </div>
-
-        <div class="energy-line">
-													   
-            <span class="energy-label" style="color: var(--red);" >
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-                AFRR
-            </span>
-            <span class="energy-value"><span class="register-value energy_label_font" id="energyMinus">--</span> <span class="scada-main-type"> kWh</span> </span>
-				  
-        </div>
-    </div>
-    <div class="energy-lines energy-lines--summary">
-        <div class="energy-line">
-            <span class="energy-label">SUM</span>
-            <span class="energy-value"><span class="register-value energy_label_font" id="energySum">--</span> <span class="scada-main-type"> kWh</span> </span>
-			  
-        </div>
-        <div class="energy-line">
-            <span></span>
-            <span class="energy-value"><span class="register-value energy_label_font" id="cijenaSum">--</span> <span class="scada-main-type"> €</span> </span>
-				  
-        </div>
-    </div>
-
-    <div style="display: flex;">
-        <div class="energy-line" style="width: 60%; gap: 6px;">
-            <span class="energy-label">ACE OL: </span><span class="register-value energy_label_font scada-main-type" id="ACE_OL">--</span><span class="scada-main-type"> MW</span>
-        </div>     
-    </div>
-</div>   <!-- closes last scada-item -->
-    <div class="scada-item">
-        <div class="scada-header">
-            <div class="scada-title">Bilanca energije</div>
-                <button class="date-btn date-btn--icon" onclick="openDataPopup()" type="button" aria-label="Prikaži podatke">
-                    ℹ️
-                </button>
-            <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
-				<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
-                </svg>
-            </button>
-        </div>
-
-        <div class="energy-lines">
-            <div class="energy-line energy-line--plus">
-                <span class="energy-label">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    VT / NT
-                </span>
-                <span class="energy-value">
-                    <span class="register-value energy_label_font" id="energyBurzeMinus">--</span> <span class="scada-main-type"> / </span> 
-                    <span class="register-value energy_label_font" id="energyBurzeNocnaMinus">--</span> <span class="scada-main-type"> kWh</span>
-                </span>
-            </div>
-            <div class="energy-line energy-line--minus">
-                <span class="energy-label">
-                    <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                    </svg>
-                    VT / NT
-                </span>
-                <span class="energy-value">
-                    <span class="register-value energy_label_font" id="energyBurzePlus">--</span> <span class="scada-main-type"> / </span> 
-                    <span class="register-value energy_label_font" id="energyBurzeNocnaPlus">--</span> <span class="scada-main-type"> kWh</span>
-                </span>
-            </div>
-        </div>
-		  
-        <div class="energy-lines energy-lines--summary">
-            <div class="energy-line">
-                <span class="energy-label">SUM + / -</span>
-                <span class="energy-value">
-                    <span class="register-value energy_label_font" id="energyBurzeMinusSum">--</span> <span class="scada-main-type"> / </span>
-                    <span class="register-value energy_label_font" id="energyBurzePlusSum">--</span>  <span class="scada-main-type"> kWh</span> 
-                </span>
-            </div>
-            <div class="energy-line">
-                <span></span>
-                <span class="energy-value">
-                    <span class="register-value energy_label_font" id="cijenaBurzeMinus">--</span> <span class="scada-main-type"> / </span>
-                    <span class="register-value energy_label_font" id="cijenaBurzePlus">--</span> <span class="scada-main-type"> €</span> 
-                </span>
-            </div>
-        </div>
-        <div style="display: flex;">
-            <div class="energy-line" style="width: 50%;">
-                <span class="energy-label">CROPEX: </span><span class="register-value energy_label_font scada-main-type" id="ENTSOE_cijena">--</span><span class="scada-main-type"> €</span>
-            </div>            
-            <div class="energy-line" style="width: 50%; justify-content: left; gap:3px">
-                <span class="energy-label">UKUPNO: </span><span class="register-value energy_label_font" id="cijenaUkupno">--</span><span class="scada-main-type"> €</span>
-            </div>
-        </div>
-    </div>   <!-- closes last scada-item -->
-
-</div> <!-- END container1 -->
-
-
-<div id="registers" class="registers-grid">
-    <div class="register-card">
-        <div class="power-row">
-            <div class="power-block">
-                <div class="register-label">Max AFRR-</div>
-                <div class="value">
-                    <span id="M_ABS_NEG_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
+            <div class="scada-item">
+                <a id="M_url_ESS" href="" target="_blank">
+                    <div class="scada-title">Baterija</div>
+                </a>
+                <div class="battery-row">            
+                    <a id="M_url_ESS_2" href="" target="_blank" >
+                        <img src="../static/icons/icon-battery-2.png" alt="Baterija" class="scada-icon scada-icon--row battery-icon">
+                    </a>
+                    <div class="battery-info">
+                        <div>
+                            <span class="scada-main" id="Slika_baterija_snaga">--</span> <span class="scada-main-type"> kW</span> 
+                        </div>
+                        <div class="scada-sub">SOC: 
+                            <span id="Slika_baterija_SOC">50</span>
+                            <span> %</span>
+                        </div>
+                    </div>
                 </div>
-            </div>
-
-            <div class="power-block right">
-                <div class="register-label">Max AFRR+</div>
-                <div class="value">
-                    <span id="M_ABS_POS_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="register-card">
-        <div class="power-row">
-            <div class="power-block right">
-                <div class="register-label">ΔP - potrošnja</div>
-                <div class="value">
-                    <span id="M_DELTA_NEG_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
-                </div>
-            </div>
-            <div class="power-block">
-                <div class="register-label">ΔP - proizvodnja</div>
-                <div class="value">
-                    <span id="M_DELTA_POS_FLEX" class="register-value">0</span> <span class="scada-main-type"> kW</span>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div class="register-card">
-        <div class="power-row">
-            <div class="power-block">
-                <div class="register-label">Snaga elektrane</div>
-                <div class="value">
-                    <span id="M_PV_postotak" class="register-value">0</span> <span class="scada-main-type"> %</span>
+                <div class="soc-progress" aria-hidden="true">
+                    <div class="soc-track">
+                        <div class="soc-fill" id="socFillNew"></div>
+                    </div>
+                    <div class="soc-labels">
+                        <span>0%</span>
+                        <span>100%</span>
+                    </div>
                 </div>
                 
+                <div >            
+                    <div style="display: ruby;">
+                        <span class="register-label text-right">Optimalni SOC: </span> 
+                        <span class="scada-main-type" id="SOC_AUTO">--</span> 
+                        <span class="scada-main-type"> %</span> 
+                    </div>
+                </div>
             </div>
-            <div class="power-block right">
-                <div class="register-label">Snaga baterije</div>
-                <div class="value">
-                    <span id="M_Baterija_postotak" class="register-value">0</span> <span class="scada-main-type"> %</span>
+
+            <div class="scada-item" >
+                <div class="scada-title">Potrošnja</div>
+                <div class="scada-row">
+                    <a id="M_url_HEP" href="" target="_blank" style="text-decoration:none; color:inherit;">
+                        <img src="../static/icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row scada-icon--miner">
+                    </a>             
+                    <div>
+                        <span class="scada-main" id="Slika_potrosnja">--</span> 
+                        <span class="scada-main-type"> kW</span>
+                    </div>
+                </div>        
+            </div>
+
+
+            <div class="scada-item" id="snaga_hep">
+                <a id="M_url_HEP_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
+                    <div class="scada-title">Snaga prema mreži (HEP)</div>
+                </a>
+                <div class="scada-row">
+                    <a id="M_url_HEP_3" href="" target="_blank" style="text-decoration:none; color:inherit;">
+                        <img src="../static/icons/icon-grid-2.png" alt="Transformer" class="scada-icon scada-icon--row">
+                    </a>                      
+                    <div>
+                        <span class="scada-main" id="Slika_Janitza">--</span> 
+                        <span class="scada-main-type"> kW</span>
+                    </div>            
+                </div>
+                    <br>
+                    <div style="display: ruby;" class="scada-sub">
+                        <span class="register-label text-right">Baseline: </span> 
+                        <span class="scada-main-type" id="Baseline">--</span> 
+                        <span class="scada-main-type"> kW</span> 
+                    </div>   
+                    <div class="setpoint-row scada-title " style="padding-bottom: 0px; margin-bottom: 0px;">
+                        <span class="register-label" style="margin-bottom: 0px;">
+                            Aktivacija (setpoint):
+                        </span>
+                        
+                        <div class="text-right" style="padding-bottom: 6px;">
+                            <span class="scada-main" id="ENNA_setpoint_scada">--</span>
+                            <span class="scada-main-type"> kW</span> 
+                        </div>
+                    </div>
+                    
+                <div id="ENNA_ackt_viz" class="status-window on_bottom" role="status" aria-live="polite" data-state="unknown">
+                    Neaktivna
+                </div>
+            </div>
+
+            <div class="scada-item">
+                <div class="scada-header">
+                    <div class="scada-title">Agregirana energija</div>
+                    <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
+                        ℹ️
+                    </button>
+                    <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="energy-lines">
+                    <div class="energy-line">
+                        <span class="energy-label" style="color: var(--green);" >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            AFRR
+                        </span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyPlus">--</span> 
+                            <span class="scada-main-type"> kWh</span></span>
+                    </div>
+
+                    <div class="energy-line">                                                        
+                        <span class="energy-label" style="color: var(--red);" >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            AFRR
+                        </span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyMinus">--</span> 
+                            <span class="scada-main-type"> kWh</span> 
+                        </span>
+                    </div>
+                </div>
+                <div class="energy-lines energy-lines--summary">
+                    <div class="energy-line">
+                        <span class="energy-label">SUM</span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energySum">--</span> 
+                            <span class="scada-main-type"> kWh</span> 
+                        </span>
+                    </div>
+                    <div class="energy-line">
+                        <span></span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="cijenaSum">--</span> 
+                            <span class="scada-main-type"> €</span> 
+                        </span>                    
+                    </div>
+                </div>
+
+                <div style="display: flex;">
+                    <a href="https://hops.hr/" target="_blank">
+                        <div class="energy-line" style="gap: 6px;">            
+                            <span class="energy-label">ACE OL: </span>
+                            <span class="register-value energy_label_font scada-main-type" id="ACE_OL">--</span>
+                            <span class="scada-main-type"> MW</span>
+                        </div>     
+                    </a>           
+                    <div class="energy-line" style="gap: 6px; width: 50%; padding-left: 0px;">
+                        <span class="energy-label">CROPEX: </span>
+                        <span class="register-value energy_label_font scada-main-type" id="ENTSOE_cijena">--</span>
+                        <span class="scada-main-type"> €/MWh</span>
+                    </div>     
+                </div>
+            </div>   <!-- closes last scada-item -->
+            <div class="scada-item">
+                <div class="scada-header">
+                    <div class="scada-title">Bilanca energije</div>
+                    <button class="date-btn date-btn--icon" onclick="openDataPopup()" type="button" aria-label="Prikaži podatke">
+                        ℹ️
+                    </button>
+                    <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
+                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="energy-lines">
+                    <div class="energy-line energy-line--plus">
+                        <span class="energy-label">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            VT / NT
+                        </span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyBurzeMinus">--</span> 
+                            <span class="scada-main-type"> / </span> 
+                            <span class="register-value energy_label_font" id="energyBurzeNocnaMinus">--</span> 
+                            <span class="scada-main-type"> kWh</span>
+                        </span>
+                    </div>
+                    <div class="energy-line energy-line--minus">
+                        <span class="energy-label">
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            VT / NT
+                        </span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyBurzePlus">--</span> 
+                            <span class="scada-main-type"> / </span> 
+                            <span class="register-value energy_label_font" id="energyBurzeNocnaPlus">--</span> 
+                            <span class="scada-main-type"> kWh</span>
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="energy-lines energy-lines--summary">
+                    <div class="energy-line">
+                        <span class="energy-label">SUM + / -</span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyBurzeMinusSum">--</span> 
+                            <span class="scada-main-type"> / </span>
+                            <span class="register-value energy_label_font" id="energyBurzePlusSum">--</span>  
+                            <span class="scada-main-type"> kWh</span> 
+                        </span>
+                    </div>
+                    <div class="energy-line">
+                        <span></span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="cijenaBurzeMinus">--</span> 
+                            <span class="scada-main-type"> / </span>
+                            <span class="register-value energy_label_font" id="cijenaBurzePlus">--</span> 
+                            <span class="scada-main-type"> €</span> 
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex;">
+                    <div class="energy-line" style="width: 50%;"></div>            
+                    <div class="energy-line" style="width: 50%; justify-content: left; gap:3px">
+                        <span class="energy-label">UKUPNO: </span>
+                        <span class="register-value energy_label_font" id="cijenaUkupno">--</span>
+                        <span class="scada-main-type"> €</span>
+                    </div>
+                </div>
+            </div>   <!-- closes last scada-item -->
+        </div> <!-- END container1 -->
+
+        <div id="registers" class="registers-grid">
+            <div class="register-card">
+                <div class="power-row">
+                    <div class="power-block">
+                        <div class="register-label">Max AFRR-</div>
+                        <div class="value">
+                            <span id="M_ABS_NEG_FLEX" class="register-value">0</span> 
+                            <span class="scada-main-type"> kW</span>
+                        </div>
+                    </div>
+
+                    <div class="power-block right">
+                        <div class="register-label">Max AFRR+</div>
+                        <div class="value">
+                            <span id="M_ABS_POS_FLEX" class="register-value">0</span> 
+                            <span class="scada-main-type"> kW</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="register-card">
+                <div class="power-row">
+                    <div class="power-block right">
+                        <div class="register-label">ΔP - potrošnja</div>
+                        <div class="value">
+                            <span id="M_DELTA_NEG_FLEX" class="register-value">0</span> 
+                            <span class="scada-main-type"> kW</span>
+                        </div>
+                    </div>
+                    <div class="power-block">
+                        <div class="register-label">ΔP - proizvodnja</div>
+                        <div class="value">
+                            <span id="M_DELTA_POS_FLEX" class="register-value">0</span> 
+                            <span class="scada-main-type"> kW</span>
+                        </div>
+                    </div>			  
+                </div>
+            </div>
+
+            <div class="register-card">
+                <div class="power-row">
+                    <div class="power-block">
+                        <div class="register-label">Snaga elektrane</div>
+                        <div class="value">
+                            <span id="M_PV_postotak" class="register-value">0</span> 
+                            <span class="scada-main-type"> %</span>
+                        </div>
+                        
+                    </div>
+                    <div class="power-block right">
+                        <div class="register-label">Snaga baterije</div>
+                        <div class="value">
+                            <span id="M_Baterija_postotak" class="register-value">0</span> 
+                            <span class="scada-main-type"> %</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modbus-values">
+                    <div>HEP - podešena snaga <span id="M_HEP_podeseno" class="register-value">0</span> 
+                        <span class="scada-main-type"> %</span>
+                    </div>
                 </div>
             </div>
         </div>
-        
-        <div class="modbus-values">
-            <div>HEP - podešena snaga <span id="M_HEP_podeseno" class="register-value">0</span> 
-                <span class="scada-main-type"> %</span>
+
+        <div class="radio-wrapper">
+            <div class="radio-section">
+                <label class="radio-option">
+                    <input type="radio" name="viewMode" value="power" checked />
+                    <span class="custom-radio" style="min-width: 18px;"></span>
+                    Snaga prema mreži / Baseline
+                </label>
+
+                <label class="radio-option">
+                    <input type="radio" name="viewMode" value="production" />
+                    <span class="custom-radio" style="min-width: 18px;"></span>
+                    Proizvodnja / Predikcija proizvodnje
+                </label>
+
+                <label class="radio-option">
+                    <input type="radio" name="viewMode" value="consuption" />
+                    <span class="custom-radio" style="min-width: 18px;"></span>
+                    Potrošnja / Predikcija potrošnje
+                </label>
+
+                <label class="radio-option">
+                    <input type="radio" name="viewMode" value="soc" />
+                    <span class="custom-radio" style="min-width: 18px;"></span>
+                    SOC / Optimalni SOC
+                </label>
             </div>
         </div>
-    </div>
-</div>
 
-<div class="radio-wrapper">
-    <div class="radio-section">
-        <label class="radio-option">
-            <input type="radio" name="viewMode" value="power" checked />
-            <span class="custom-radio" style="min-width: 18px;"></span>
-            Snaga prema mreži / Baseline
-        </label>
+        <div id="chart_power" class="chart-container" >
+            <div class="chart-header">
+                <h3>Vizualizacija</h3>
+                <button type="button" class="reset-zoom-btn" data-chart="janitzaChart">Reset Zoom</button>
+            </div>
+            <div style="height:450px;">
+                <canvas id="janitzaChart"></canvas>
+            </div>
+        </div>
 
-        <label class="radio-option">
-            <input type="radio" name="viewMode" value="production" />
-            <span class="custom-radio" style="min-width: 18px;"></span>
-            Proizvodnja / Predikcija proizvodnje
-        </label>
-
-        <label class="radio-option">
-            <input type="radio" name="viewMode" value="consuption" />
-            <span class="custom-radio" style="min-width: 18px;"></span>
-            Potrošnja / Predikcija potrošnje
-
-        </label>
-        <label class="radio-option">
-            <input type="radio" name="viewMode" value="soc" />
-            <span class="custom-radio" style="min-width: 18px;"></span>
-            SOC / Optimalni SOC
-        </label>
-    </div>
-</div>
-
-<div id="chart_power" class="chart-container" >
-    <div class="chart-header">
-        <h3>Vizualizacija</h3>
-        <button class="reset-zoom-btn" data-chart="janitzaChart">Reset Zoom</button>
-    </div>
-    <div style="height:450px;">
-    <canvas id="janitzaChart"></canvas>
-</div>
-</div>
-
-<div id="chart_production"  class="chart-container" style="display: none;">
-    <div class="chart-header">
-        <h3>Vizualizacija</h3>
-        <button class="reset-zoom-btn" data-chart="janitzaChart_1">Reset Zoom</button>
-    </div>
-    <div style="height:450px;">
-        <canvas id="janitzaChart_1"></canvas>
-    </div>
-</div>
+        <div id="chart_production"  class="chart-container" style="display: none;">
+            <div class="chart-header">
+                <h3>Vizualizacija</h3>
+                <button type="button" class="reset-zoom-btn" data-chart="janitzaChart_1">Reset Zoom</button>
+            </div>
+            <div style="height:450px;">
+                <canvas id="janitzaChart_1"></canvas>
+            </div>
+        </div>
 
 
-<div  id="chart_consuption" class="chart-container" style="display: none;">
-    <div class="chart-header">
-        <h3>Vizualizacija</h3>
-        <button class="reset-zoom-btn" data-chart="janitzaChart_2">Reset Zoom</button>
-    </div>
-    <div style="height:450px;">
-        <canvas id="janitzaChart_2"></canvas>
-    </div>
-</div>
+        <div  id="chart_consuption" class="chart-container" style="display: none;">
+            <div class="chart-header">
+                <h3>Vizualizacija</h3>
+                <button type="button" class="reset-zoom-btn" data-chart="janitzaChart_2">Reset Zoom</button>
+            </div>
+            <div style="height:450px;">
+                <canvas id="janitzaChart_2"></canvas>
+            </div>
+        </div>
 
-<div  id="chart_SOC" class="chart-container" style="display: none;">
-    <div class="chart-header">
-        <h3>Vizualizacija</h3>
-        <button class="reset-zoom-btn" data-chart="janitzaChart_3">Reset Zoom</button>
-    </div>
-    <div style="height:450px;">
-        <canvas id="janitzaChart_3"></canvas>
-    </div>
-</div>
-<!-- MODAL ZA RUČNI UPIS-->
-<div id="manualInputModal" class="modal" style="display:none;">
-  <div class="modal-content">
+        <div  id="chart_SOC" class="chart-container" style="display: none;">
+            <div class="chart-header">
+                <h3>Vizualizacija</h3>
+                <button type="button" class="reset-zoom-btn" data-chart="janitzaChart_3">Reset Zoom</button>
+            </div>
+            <div style="height:450px;">
+                <canvas id="janitzaChart_3"></canvas>
+            </div>
+        </div>
+
+        <!-- MODAL ZA RUČNI UPIS-->
+        <div id="manualInputModal" class="modal" style="display:none;">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h3>Način rada</h3>
                     <span class="close-btn" onclick="closeModal('manualInputModal')">&times;</span>
                 </div>
-    <div id="writeRegisters" class="registers-grid" style="display:grid; grid-template-columns: 250px 120px 80px 1fr; gap:10px; align-items:center;"></div>
-     
-<div id="outputWindow" class="output-window"></div>
-</div>
-</div>
+                <div id="writeRegisters" class="registers-grid" style="display:grid; grid-template-columns: 250px 120px 80px 1fr; gap:10px; align-items:center;"></div>        
+                <div id="outputWindow" class="output-window"></div>
+            </div>
+        </div>
 
-<!-- MODAL ZA AUTOMATSKI UPIS-->
-<div id="AutoInputModal" class="modal" style="display:none;">
-  <div class="modal-content">
+        <!-- MODAL ZA AUTOMATSKI UPIS-->
+        <div id="AutoInputModal" class="modal" style="display:none;">
+            <div class="modal-content">
                 <div class="modal-header">
                     <h3>Način rada</h3>
                     <span class="close-btn" onclick="closeModal('AutoInputModal')">&times;</span>
                 </div>
-        <div id="manualInputContainer" class="form-grid">
-           
-            <label for="ENNA_ACKT_RUCNO" class="form-label">Ručna aktivacija:
-                 <span class="form-hint">OPCIJE: <br>0: AUTO način rada <br> 1: Prati se setpoint od agregatora i šalje ACKN flag (poluručno)<br> 2: Prati se ručni setpoint i ne šalje se ACKN flag (ručno)</span>
-            </label>
-            <div class="form-field">
-                <input type="number" id="ENNA_ACKT_RUCNO" placeholder="Unesite vrijednost">
-            </div>
 
-             <label for="ENNA_RUCNO" class="form-label">Ručni unos setpointa aktivacije:</label>
-            <div class="form-field">
-                <input type="number" id="ENNA_RUCNO" placeholder="Unesite vrijednost">
-            </div>
+                <div id="manualInputContainer" class="form-grid">
+                
+                    <label for="ENNA_ACKT_RUCNO" class="form-label">Ručna aktivacija:
+                        <span class="form-hint">OPCIJE: <br>0: AUTO način rada <br> 1: Prati se setpoint od agregatora i šalje ACKN flag (poluručno)<br> 2: Prati se ručni setpoint i ne šalje se ACKN flag (ručno)</span>
+                    </label>
+                    <div class="form-field">
+                        <input type="number" id="ENNA_ACKT_RUCNO" placeholder="Unesite vrijednost">
+                    </div>
 
-            <label for="SOC-bat-auto" class="form-label">
-                Postavka SOC %:
-                <span class="form-hint">Za AUTO način rada upisati "-1"</span>
-            </label>
-            <div class="form-field form-field--stack">
-                <input type="number" id="SOC-bat-auto" placeholder="Unesite vrijednost">
-                <button onclick="sendManualValue()">Pošalji</button>
+                    <label for="ENNA_RUCNO" class="form-label">Ručni unos setpointa aktivacije:</label>
+                    <div class="form-field">
+                        <input type="number" id="ENNA_RUCNO" placeholder="Unesite vrijednost">
+                    </div>
+
+                    <label for="SOC-bat-auto" class="form-label"> Postavka SOC %:
+                        <span class="form-hint">Za AUTO način rada upisati "-1"</span>
+                    </label>
+                    <div class="form-field form-field--stack">
+                        <input type="number" id="SOC-bat-auto" placeholder="Unesite vrijednost">
+                        <button type="button" onclick="sendManualValue()">Pošalji</button>
+                    </div>
+                </div>   
+            
+                <div id="outputWindowAuto" class="output-window"></div>
             </div>
         </div>
-    
-    
-<div id="outputWindowAuto" class="output-window"></div>
-</div>
-</div>
 
-<!-- DATE SELECTION MODAL -->
-<div class="popup_overlay" id="overlayDate">
-    <div class="popup" id="popupDate" style="width: 290px;">
-        <div class="popup_header">
-            <h3>Odabir razdoblja</h3>
-            <span class="close-btn" onclick="closePopup()">&times;</span>
-        </div>
-        <div class="popup_divider"></div>
-        <div class="popup_row" style="display: block;">
-            <label for="startDate" class="form-label">Početni datum:</label>
-            <div>
-                <input type="text" id="startDate">
-            </div>
+        <!-- DATE SELECTION MODAL -->
+        <div class="popup_overlay" id="overlayDate">
+            <div class="popup" id="popupDate" style="width: 290px;">
+                <div class="popup_header">
+                    <h3>Odabir razdoblja</h3>
+                    <span class="close-btn" onclick="closePopup()">&times;</span>
+                </div>
 
-            <label for="endDate" class="form-label">Završni datum:</label>
-            <div>
-                <input type="text" id="endDate">
-            </div>
+                <div class="popup_divider"></div>
+                <div class="popup_row" style="display: block;">
+                    <label for="startDate" class="form-label">Početni datum:</label>
+                    <div>
+                        <input type="text" id="startDate">
+                    </div>
 
-            <div class="form-actions">
-                <button onclick="sendDateRange(); closePopup();">Pošalji</button>
+                    <label for="endDate" class="form-label">Završni datum:</label>
+                    <div>
+                        <input type="text" id="endDate">
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" onclick="sendDateRange(); closePopup();">Pošalji</button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <div class="popup_overlay" id="overlay">
+            <div class="popup" id="popup">
+                <div class="popup_close-btn" onclick="closePopup()">✕</div>
+
+                <div class="popup_header">
+                    <h3>PARAMETRI IZRAČUNA CIJENE ENERGIJE</h3>
+                </div>
+
+                <div class="popup_divider"></div>
+
+                <div class="popup_row">
+                    <span>Vrsta prodaje: </span>
+                    <span class="register-value energy_label_font" id="vrstaProdaje"></span> 
+                </div>
+
+                <div class="popup_row">
+                    <span>Koeficijent prodaje: </span>
+                    <span class="register-value energy_label_font" id="koeficijentProdaje"></span> 
+                </div>
+
+                <div class="popup_row">
+                    <span>Vrsta kupovine: </span>
+                    <span class="register-value energy_label_font" id="vrstaKupovine"></span> 
+                </div>
+
+                <div class="popup_row">
+                    <span>Koeficijent kupovine: </span>
+                    <span class="register-value energy_label_font" id="koeficijentKupovine"></span> 
+                </div>
+
+                <div class="popup_divider"></div>
+
+                <div class="popup_row">
+                    <span>Trošarina: </span>
+                    <div>
+                        <span class="register-value energy_label_font" id="trosarina"></span> <span class="scada-main-type"> €/kWh</span> 
+                    </div>
+                </div>
+
+                <div class="popup_row">
+                    <span>Mrežarina (VT): </span>
+                    <div>
+                        <span class="register-value energy_label_font" id="mrezarinaVT"></span> <span class="scada-main-type"> €/kWh</span> 
+                    </div>            
+                </div>
+
+                <div class="popup_row">
+                    <span>Mrežarina (NT): </span>
+                    <div>
+                        <span class="register-value energy_label_font" id="mrezarinaNT"></span> <span class="scada-main-type"> €/kWh</span> 
+                    </div>
+                </div>
+
+                <div class="popup_row">
+                    <span>OIE: </span>
+                    <div>
+                        <span class="register-value energy_label_font" id="OIE"></span><span class="scada-main-type"> €/kWh</span> 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="popup_overlay" id="overlayAFRR">
+            <div class="popup" id="popupAFRR">
+                <div class="popup_close-btn" onclick="closePopup()">✕</div>
+
+                <div class="popup_header">
+                    <h3>PARAMETRI IZRAČUNA CIJENE AGREGACIJE</h3>
+                </div>
+
+                <div class="popup_divider"></div>
+
+                <div class="popup_row">
+                    <span>AFRR +: </span>
+                    <div>
+                        <span class="register-value energy_label_font" id="CijenaAgregacijePlus"></span> <span class="scada-main-type"> €/kWh</span> 
+                    </div>
+                </div>
+
+                <div class="popup_row">
+                    <span>AFRR -: </span>
+                    <div>
+                        <span class="register-value energy_label_font" id="CijenaAgregacijeMinus"></span> <span class="scada-main-type"> €/kWh</span> 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+<!--PASSWORD MODAL-->
+<div id="passwordModal" class="modal" style="display:none;">
+  <div class="modal-content" style="padding: 20px; max-width: 350px; text-align: center;">
+    <label style="display:block; margin-bottom: 10px; font-weight: bold;">Unesite lozinku:</label>
+    <input type="password" id="passwordInput" 
+           style="width: 100%; padding: 8px; margin-bottom: 15px; 
+                  background: var(--bg); color: var(--text); border: 1px solid var(--border); 
+                  border-radius: 4px;" />
+    <div style="display: flex; justify-content: space-around;">
+      <button onclick="submitPassword()" style="padding: 8px 16px; cursor: pointer;">OK</button>
+      <button onclick="closePasswordModal()" style="padding: 8px 16px; cursor: pointer;">Cancel</button>
     </div>
+  </div>
 </div>
-
-<div class="popup_overlay" id="overlay">
-    <div class="popup" id="popup">
-        <div class="popup_close-btn" onclick="closePopup()">✕</div>
-
-        <div class="popup_header">
-            <h3>PARAMETRI IZRAČUNA CIJENE ENERGIJE</h3>
-        </div>
-
-        <div class="popup_divider"></div>
-
-        <div class="popup_row">
-            <span>Vrsta prodaje: </span>
-            <span class="register-value energy_label_font" id="vrstaProdaje"></span> 
-        </div>
-
-        <div class="popup_row">
-            <span>Koeficijent prodaje: </span>
-            <span class="register-value energy_label_font" id="koeficijentProdaje"></span> 
-        </div>
-
-        <div class="popup_row">
-            <span>Vrsta kupovine: </span>
-            <span class="register-value energy_label_font" id="vrstaKupovine"></span> 
-        </div>
-
-        <div class="popup_row">
-            <span>Koeficijent kupovine: </span>
-            <span class="register-value energy_label_font" id="koeficijentKupovine"></span> 
-        </div>
-
-        <div class="popup_divider"></div>
-
-        <div class="popup_row">
-            <span>Trošarina: </span>
-            <div>
-                <span class="register-value energy_label_font" id="trosarina"></span> <span class="scada-main-type"> €/kWh</span> 
-            </div>
-        </div>
-
-        <div class="popup_row">
-            <span>Mrežarina (VT): </span>
-            <div>
-                <span class="register-value energy_label_font" id="mrezarinaVT"></span> <span class="scada-main-type"> €/kWh</span> 
-            </div>            
-        </div>
-
-        <div class="popup_row">
-            <span>Mrežarina (NT): </span>
-            <div>
-                <span class="register-value energy_label_font" id="mrezarinaNT"></span> <span class="scada-main-type"> €/kWh</span> 
-            </div>
-        </div>
-
-        <div class="popup_row">
-            <span>OIE: </span>
-            <div>
-                <span class="register-value energy_label_font" id="OIE"></span><span class="scada-main-type"> €/kWh</span> 
-            </div>
-        </div>
-
-    </div>
-</div>
-
-<div class="popup_overlay" id="overlayAFRR">
-    <div class="popup" id="popupAFRR">
-        <div class="popup_close-btn" onclick="closePopup()">✕</div>
-
-        <div class="popup_header">
-            <h3>PARAMETRI IZRAČUNA CIJENE AGREGACIJE</h3>
-        </div>
-
-        <div class="popup_divider"></div>
-
-        <div class="popup_row">
-            <span>AFRR +: </span>
-            <div>
-                <span class="register-value energy_label_font" id="CijenaAgregacijePlus"></span> <span class="scada-main-type"> €/kWh</span> 
-            </div>
-        </div>
-
-        <div class="popup_row">
-            <span>AFRR -: </span>
-            <div>
-                <span class="register-value energy_label_font" id="CijenaAgregacijeMinus"></span> <span class="scada-main-type"> €/kWh</span> 
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>				
-<script src="https://npmcdn.com/flatpickr/dist/l10n/hr.js"></script>																				  
-
-<script>
-function updateColor() {
-    const el = document.getElementById("cijenaUkupno");
-    let value = parseFloat(el.textContent);
-
-    if (!isNaN(value)) {
-        if (value > 0) {
-            el.style.color = "var(--green)";
-        } else {
-            el.style.color = "var(--red)";
-        }
-    }
-}   
-function openDataPopup() {
-
-    const vrstaProdaje =document.getElementById("vrstaProdaje");
-    vrstaProdaje.textContent=backend_map["M_Vrsta_prodaje"].value;
-
-    const koeficijentProdaje =document.getElementById("koeficijentProdaje");
-    koeficijentProdaje.textContent=backend_map["M_Koeficijent_prodaje"].value;
-
-    const vrstaKupovine =document.getElementById("vrstaKupovine");
-    vrstaKupovine.textContent=backend_map["M_Vrsta_kupovine"].value;
-
-    const koeficijentKupovine =document.getElementById("koeficijentKupovine");
-    koeficijentKupovine.textContent=backend_map["M_Koeficijent_kupovine"].value;
-
-    const trosarina =document.getElementById("trosarina");
-    trosarina.textContent=backend_map["M_Trosarina"].value;
-
-    const mrezarinaVT =document.getElementById("mrezarinaVT");
-    mrezarinaVT.textContent=backend_map["M_Mrezarina_VT"].value;
-
-    const mrezarinaNT =document.getElementById("mrezarinaNT");
-    mrezarinaNT.textContent=backend_map["M_Mrezarina_NT"].value;
-
-    const OIE =document.getElementById("OIE");
-    OIE.textContent=backend_map["M_OIE"].value;
-
-    const overlay = document.getElementById("overlay");
-
-    overlay.style.display = "flex";   // make it visible again
-
-    // small delay ensures animation works properly
-    setTimeout(() => {
-        overlay.classList.remove("hidden");
-    }, 10);
-}
-function openDataPopupAFRR() {
-
-    const CijenaAgregacijePlus =document.getElementById("CijenaAgregacijePlus");
-    CijenaAgregacijePlus.textContent=backend_map["M_Cijena_agregacije_plus"].value;
-
-    const CijenaAgregacijeMinus =document.getElementById("CijenaAgregacijeMinus");
-    CijenaAgregacijeMinus.textContent=backend_map["M_Cijena_agregacije_minus"].value;
-
-
-    const overlayAFRR = document.getElementById("overlayAFRR");
-
-    overlayAFRR.style.display = "flex";   // make it visible again
-
-    // small delay ensures animation works properly
-    setTimeout(() => {
-        overlayAFRR.classList.remove("hidden");
-    }, 10);
-}
-
-function closePopup() {
-    const overlay = document.getElementById("overlay");
-    overlay.classList.add("hidden");
-
-    const overlayAFRR = document.getElementById("overlayAFRR");
-    overlayAFRR.classList.add("hidden");
-
-    const overlayDate = document.getElementById("overlayDate");
-    overlayDate.classList.add("hidden");
-
-    setTimeout(() => {
-        overlay.style.display = "none";
-    }, 300);
-}
-
-// Close with ESC key
-document.addEventListener("keydown", function(e) {
-    if (e.key === "Escape") {
-        closePopup();
-    }
-});
-
-//kompletna mapa s backenda na frontend
-const backend_map ={
-    "M_PV_proizvodnja": {value: 0},
-    "M_PV_proizvodnja_VIZ": {value: 0},
-    "MAX_PV_proizvodnja": {value: 0},
-    "M_PV_postotak": {value: 0},
-    "M_EnergyMeter": {value:0},
-    "M_Baterija_SOC": {value: 0},
-    "M_Baterija_snaga": {value: 0},
-    "M_Baterija_postotak": {value: 0},
-    "M_ENNA_podesena_snaga": {value: 0},
-    "M_ABS_POS_FLEX": {value: 0},
-    "M_ABS_NEG_FLEX": {value: 0},
-    "M_ENNA_ACKT": {value:0},
-    "M_DELTA_POS_FLEX": {value:0},
-    "M_DELTA_NEG_FLEX": {value:0},
-	"M_HEP_podeseno": {value:0},
-    "M_Potrosnja": {value:0},
-    "M_OZRACENOST": {value:0},
-    "M_SOC_AUTO_VIZ":{value:0},
-    "M_AMB_TEMP":{value:0},
-    "M_Baseline":{value:0},
-    "M_energyPlus":{value:0},
-    "M_energyMinus":{value:0},
-    "M_energySum":{value:0},
-    "M_cijenaSum":{value:0},
-    "M_energyBurzePlus":{value:0},
-    "M_energyBurzeMinus":{value:0},
-    "M_energyBurzePlusSum":{value:0},
-    "M_cijenaBurzePlus":{value:0},
-    "M_energyBurzeNocnaPlus":{value:0},
-    "M_energyBurzeNocnaMinus":{value:0},
-    "M_energyBurzeMinusSum":{value:0},
-    "M_cijenaBurzeMinus":{value:0},
-    "M_cijenaUkupno":{value:0},
-    "M_PV_prediction":{value:0},
-    "M_CS_prediction":{value:0},
-    "M_PASSWORD":{value:null},
-    "M_ENTSOE_cijena":{value:0},
-    "M_Vrsta_prodaje":{value:0},
-    "M_Koeficijent_prodaje":{value:0},
-    "M_Vrsta_kupovine":{value:0},
-    "M_Koeficijent_kupovine":{value:0},
-    "M_Trosarina":{value:0},
-    "M_Mrezarina_VT":{value:0},
-    "M_Mrezarina_NT":{value:0},
-    "M_OIE":{value:0},
-    "M_Cijena_agregacije_plus":{value:0},
-    "M_Cijena_agregacije_minus":{value:0},
-    "M_naziv_elektrane":{value:""},
-    "M_lokacija":{value:""},
-    "M_url_DM":{value:""},
-    "M_url_ESS":{value:""},
-    "M_url_HEP":{value:""},
-    "M_max_PV_proizvodnja":{value:""},
-    "M_ACE_OL":{value:0}
-};
-	
-
-
-const writeRegistersList = [
-            { id: 40380, description: "Snaga elektrane - ručno", explanation: "(%) 100% = 215 kW", bit_size:16, gain: 10, client: "A" },
-            { id: 40383, description: "Snaga baterija - ručno", explanation: "- = punjenje, + = pražnjenje ", bit_size:16, gain: 10, client: "A" }
-        ];
-//...............KALENDAR ZA ODABIR DATUMA........................
-
-flatpickr("#startDate", {
-    locale: "hr",
-    defaultDate: new Date()
-});
-
-flatpickr("#endDate", {
-    locale: "hr",
-    defaultDate: new Date()
-});
-
-let startPicker;
-let endPicker;    
-let today 
-let firstDay 
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    startPicker = flatpickr("#startDate", {
-        dateFormat: "d.m.Y.",
-        locale: "hr",          
-        onChange: function(selectedDates) {
-            endPicker.set("minDate", selectedDates[0]);
-        }
-    });
-
-    endPicker = flatpickr("#endDate", {
-        dateFormat: "d.m.Y.",
-        locale: "hr",          
-        onChange: function(selectedDates) {
-            startPicker.set("maxDate", selectedDates[0]);
-        }
-    });
-
-});
-
-function formatDate(dateStr) {
-    const [day, month, year] = dateStr.split('.');
-    return `${year}-${month}-${day}`;
-}
-
-function sendDateRange() {
-
-    const startRaw = document.getElementById("startDate").value;
-    const endRaw = document.getElementById("endDate").value;
-    today = endRaw
-    firstDay = startRaw
-
-    const start = formatDate(startRaw);
-    const end = formatDate(endRaw);
-    
-    if (!start || !end || start == "undefined-undefined-" || end == "undefined-undefined-") {
-        alert("Odaberi datume");
-        return;
-    }
-
-    fetch('/dohvati_aku_energiju', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            start_date: start,
-            end_date: end
-        })
-    })
-    .catch(() => alert("Greška"));
-}
-//...............Dohvat podataka s backenda........................
-
-function fetchAndUpdateValues() {
-    fetch('/Frontend_primi_podatke', { cache: "no-store" })
-        .then(res => res.json())
-        .then(data => {
-            // Update backend mape
-            for (const key in data) {
-                if (backend_map[key] && data[key] && typeof data[key].value !== "undefined") {
-                    backend_map[key].value = data[key].value;
-                }
-            }           
-        })
-        .catch(err => console.error("Error fetching values:", err));
-
-    fetch('/get_mode', {cache: "no-store"})
-        .then(res => res.json())
-        .then(data => {
-            if (data && typeof data.mode !== "undefined") {
-                updateModeButtons(data.mode);
-            }
-        })
-        .catch(err => console.error("Error fetching mode:", err));  
-    updateColor();
-}
-
-//...............Periodičko slanje na backend........................
-
-function showAutoInputMessage(msg, success = true, duration = 3000) {
-    const div = document.getElementById("outputWindowAuto");
-    div.innerHTML = msg;  // use innerHTML
-    div.style.color = success ? "#00aa00" : "#ff3333";
-    div.style.fontWeight = "bold";
-
-    if (duration > 0) {
-        setTimeout(() => {
-            div.innerHTML = "";
-        }, duration);
-    }
-}
-
-function SendAndUpdateValues() {
-    
- const dataToSend = {
-        M_ENNA_podesena_snaga_rucno: ENNA_RUCNO,
-        M_ENNA_ACKT_rucno: ENNA_ACKT_RUCNO,
-        M_SOC_AUTO: SOC_BAT_AUTO // optional if you want SOC manual value too
-    };
-
-    fetch('/Frontend_salji_podatke', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(dataToSend)
-    })
-    .then(res => res.json())
-        .then(data => {
-        if (data.status === "success") {
-            const values = Object.entries(data.current_values)
-                .map(([key, value]) => `${key}: ${value}`)  // each key-value
-                .join("<br>");  // use <br> for line break in HTML
-
-            showAutoInputMessage(`${data.message}<br>${values}`, true, 10000);
-
-            } else {
-                showAutoInputMessage(data.message || "Greška pri primjeni vrijednosti", false);
-            }
-        })
-        .catch(err => {
-            showAutoInputMessage("Greška u komunikaciji s backendom", false);
-            console.error(err);
-        });
-    }
-
-
-//...............Otvaranje zatvaranje modalnih prozora........................
-
-function openModal(id) {
-    document.getElementById(id).style.display = 'block';
-    }
-
-function closeModal(id) {
-    document.getElementById(id).style.display = 'none';
-    }
-
-window.onclick = function(event) {
-    const modal = document.getElementById('manualInputModal');
-    if(event.target === modal) {
-        closeModal('manualInputModal');
-        }
-    }
-
-
-// datum odabir
-
-/* Open / Close modal */
-
-function openDateModal() {
-    
-    startPicker.setDate(firstDay);
-    endPicker.setDate(today);
-
-						   
-    const overlayDate = document.getElementById("overlayDate");
- 
-
-    overlayDate.style.display = "flex";   // make it visible again
-
-    // small delay ensures animation works properly
-    setTimeout(() => {
-        overlayDate.classList.remove("hidden");
-    }, 10);
-    
-}
-
-/* Default dates (timezone safe) */
-
-function setDefaultDates() {
-
-    today = new Date();
-
-    function formatDateLocal(date) {
-        const y = date.getFullYear();
-        const m = String(date.getMonth() + 1).padStart(2, "0");
-        const d = String(date.getDate()).padStart(2, "0");
-        return `${d}.${m}.${y}.`;
-    }
-      
-    const endDate = formatDateLocal(today);
-
-    firstDay = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-    );
-
-    const startDate = formatDateLocal(firstDay);
-
-    document.getElementById("startDate").value = startDate;
-    document.getElementById("endDate").value = endDate;
-}
-//...............Render prozora za upis podataka........................
-    
-function createWriteRegisterRow(register) {
-    const container = document.getElementById("writeRegisters");
-
-    const descDiv = document.createElement("div");
-    descDiv.textContent = register.description;
-    descDiv.style.fontWeight = "500";
-
-    const inputEl = document.createElement("input");
-    inputEl.type = "number";
-    inputEl.id = `writeValue-${register.id}-${register.client}`;
-    inputEl.placeholder = "Vrijednost";
-    inputEl.style.width = "100px";
-
-    const buttonEl = document.createElement("button");
-    buttonEl.textContent = "Upiši";
-    buttonEl.onclick = () => manualWriteRegister(register.id, register.client);
-
-    const explDiv = document.createElement("div");
-    explDiv.textContent = register.explanation;
-    explDiv.style.fontSize = "0.8em";
-    explDiv.style.color = "gray";
-
-    container.appendChild(descDiv);
-    container.appendChild(inputEl);
-    container.appendChild(buttonEl);
-    container.appendChild(explDiv);
-}
-
-//Funkcija za pisanje podataka 
-function manualWriteRegister(registerId, client) {
-    const inputEl = document.getElementById(`writeValue-${registerId}-${client}`);
-    const value = inputEl.value;
-    
-    if (value === "") { 
-        alert("Molimo unesite vrijednost!"); 
-        return; 
-    }
-
-    // Find the selected register based on registerId and client
-    const selectedRegister = writeRegistersList.find(register => register.id === registerId && register.client === client);
-    
-    if (!selectedRegister) {
-        alert("Ne postoji registracija za odabrani ID i klijent!");
-        return;
-    }
-    const calculatedValue = value * selectedRegister.gain;
-
-    // Now perform the fetch request using the selected register's details
-    fetch('/write', {   
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-            address: selectedRegister.id,     // Correctly using the selected register
-            value: calculatedValue,                     // The value from the input field
-            client: selectedRegister.client,
-            bit_size: selectedRegister.bit_size
-        })
-    })
-    .then(res => res.json())
-    .then(data => {
-        const outputWindow = document.getElementById("outputWindow");
-        const timestamp = new Date().toLocaleTimeString('hr-HR', { hour12: false });
-        const messageDiv = document.createElement("div");
-        messageDiv.textContent = `[${timestamp}] ${JSON.stringify(data)}`;
-        messageDiv.style.color = "#00ff99";
-        outputWindow.appendChild(messageDiv);
-
-        if (outputWindow.children.length > 5) {
-            outputWindow.removeChild(outputWindow.firstChild);
-        }
-
-        inputEl.value = "";
-    })
-    .catch(err => {
-        alert("Greška pri komunikaciji sa serverom!");
-        console.error(err);
-    });
-}
-
-function loadAutoCurrentValues() {   //napuni prozore s trenutnim vrijednostima koje su upisane u backendu
-    fetch('/Frontend_primi_podatke')
-        .then(res => res.json())
-        .then(data => {
-            // Fill each input with current backend value
-            document.getElementById("ENNA_RUCNO").value = data["M_ENNA_podesena_snaga_rucno"]?.value ?? "";
-            document.getElementById("ENNA_ACKT_RUCNO").value = data["M_ENNA_ACKT_rucno"]?.value ?? "";
-            document.getElementById("SOC-bat-auto").value = data["M_SOC_AUTO"]?.value ?? "";
-        })
-        .catch(err => {
-            console.error("Greška pri učitavanju vrijednosti", err);
-        });
-}
-
-
-//...............Postavljanje načina rada........................
-function setMode(newMode) {
-    const correctPassword = backend_map["M_PASSWORD"].value;
-    let modeValue=1;
-
-    if (newMode === 'ručni') {
-        if (!confirm("UPOZORENJE:\n\nBudite oprezni kod ručnog upisa podataka!\nNeopreznim direktnim upisivanjem u registre sunčane elektrane i baterija, može se premašiti maksimalna dozvoljena izlazna snaga, što može rezultatirati proradom strujnih zaštita i izbacivanjem cijelog postrojenja iz mreže.\n\nŽelite li nastaviti?")
-    ) return;
-        if (prompt("Unesite lozinku:") !== correctPassword) {
-            alert("Pogrešna lozinka.");
-            return;
-        }
-        openModal('manualInputModal');
-        modeValue = 0;
-
-    } else if (newMode === 'automatski') {
-        if (!confirm("UPOZORENJE:\n\nAutomatski način rada - daljinsko upravljanje postrojenjem pomoću sustava aktivacije\n\n\nŽelite li nastaviti?")) return;
-        
-        if (prompt("Unesite lozinku:") !== correctPassword) {
-            alert("Pogrešna lozinka.");
-            return;
-        }
-        
-        openModal('AutoInputModal');
-        loadAutoCurrentValues();  // pre-fill the fields immediately
-        modeValue = 1;
-
-    } else {
-        return;
-    }
-
-    /* SEND TO BACKEND */
-    fetch("/set_mode", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ mode: modeValue })
-    })
-    .then(() => {
-        /*  UI UPDATED ONLY AFTER BACKEND ACCEPTS */
-        updateModeButtons(modeValue);
-    });
-}
-
-let lastMode = null;
-function updateModeButtons(zastavica) {
-    if (zastavica === lastMode) return;
-    lastMode = zastavica;
-
-    const manualBtn = document.getElementById('manualBtn');
-    const autoBtn   = document.getElementById('autoBtn');
-
-    if (zastavica !== 0) {
-        manualBtn.classList.remove('active');
-        autoBtn.classList.add('active');
-    } else {
-        manualBtn.classList.add('active');
-        autoBtn.classList.remove('active');
-    }
-}
-
-
-function updateLocalClock() {
-        const now = new Date();
-        document.getElementById("ntpClock").textContent = 
-        now.toLocaleTimeString('hr-HR', { hour12: false });
-        }
-let ENNA_RUCNO = 0;
-let ENNA_ACKT_RUCNO = 0;
-let SOC_BAT_AUTO = -1;
-
-
-function sendManualValue() {
-        ENNA_RUCNO = document.getElementById('ENNA_RUCNO').value;
-        ENNA_ACKT_RUCNO = document.getElementById('ENNA_ACKT_RUCNO').value;
-        SOC_BAT_AUTO = document.getElementById('SOC-bat-auto').value;
-        if((ENNA_RUCNO == "")&&(ENNA_ACKT_RUCNO == "")&&(SOC_BAT_AUTO=="")){
-            alert("Molimo unesite vrijednost!");
-            return;
-            }
-        SendAndUpdateValues();
-       
-    }
-
-// Add event listeners to all buttons
-document.querySelectorAll(".reset-zoom-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-        const chartId = btn.dataset.chart;
-        const chart = charts[chartId];
-        if (chart && typeof chart.resetZoom === "function") {
-            chart.resetZoom();
-        }
-    });
-});
-//definiranje chartova
-const chartConfigs = [
-{
-    id: "janitzaChart",
-    y1: "gridPower",
-    y2: "baseline",
-    label1: "Snaga prema mreži",
-    label2: "Baseline"
-},
-{
-    id: "janitzaChart_1",
-    y1: "proizvodnja",
-    y2: "predikcija_proiz",
-    label1: "Proizvodnja",
-    label2: "Predikcija proizvodnje"
-},
-{
-    id: "janitzaChart_2",
-    y1: "potrosnja",
-    y2: "predikcija_potr",
-    label1: "Potrošnja",
-    label2: "Predikcija potrošnje"
-},
-{
-    id: "janitzaChart_3",
-    y1: "soc",
-    y2: "optimalni_soc",
-    label1: "SOC",
-    label2: "Optimalni SOC",
-    min: 0,
-    max: 100
-}
-]
-
-let charts = {}
-
-//inicijalizacija chartova
-function initCharts(){
-
-    chartConfigs.forEach(cfg => {
-
-        const ctx = document.getElementById(cfg.id).getContext('2d')
-
-        charts[cfg.id] = new Chart(ctx, {
-
-            type:'line',
-
-            data:{
-                labels:[],
-                datasets:[
-                {
-                    label:cfg.label1,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label2,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                }]
-            },
-
-            options:{
-                responsive:true,
-                animation:false,
-                maintainAspectRatio:false,
-
-                plugins:{
-                    zoom:{
-                        pan:{enabled:true,mode:'x'},
-                        zoom:{
-                            wheel:{enabled:true},
-                            pinch:{enabled:true},
-                            mode:'x'
-                        }
-                    }
-                },
-
-                scales:{
-
-                    x:{
-                        ticks:{color:"#ffffff"},
-                        grid:{color:"#97a9cc"}
-                    },
-
-                    y:{
-                        min:cfg.min,
-                        max:cfg.max,
-                        ticks:{color:"#ffffff"},
-                        grid:{color:"#97a9cc"}
-                    }
-                }
-            }
-
-        })
-
-    })
-
-}
-
-function updateCharts(){
-
-    const dataset = getChartData()
-
-    const labels = dataset.map(d =>
-        d.time.toLocaleTimeString('hr-HR',{hour12:false})
-    )
-
-    chartConfigs.forEach(cfg => {
-
-        const chart = charts[cfg.id]
-        if(!chart) return
-
-        chart.data.labels = labels
-        chart.data.datasets[0].data = dataset.map(d => d[cfg.y1])
-        chart.data.datasets[1].data = dataset.map(d => d[cfg.y2])
-
-        chart.update('none')
-
-    })
-
-}
-
-// ------------------- Persistent & Downsampled Janitza Graph -------------------
-
-let historyData = []
-let realtimeData = []
-
-// ---------------- Downsample history (15min buckets) ----------------
-
-function downsampleHistory(data){
-
-    const buckets = {}
-
-    data.forEach(d => {
-
-        const bucket = new Date(d.time)
-
-        const m = bucket.getMinutes()
-        const rounded = Math.floor(m/1)*1  //1 minutni prosjeci (postotak zauzetostsi grafa s povijesnim podacima)
-
-        bucket.setMinutes(rounded,0,0)
-
-        const key = bucket.getTime()
-
-        if(!buckets[key]){
-            buckets[key] = {...d, time:bucket, count:1}
-        }
-        else{
-            for(let k in d){
-                if(k !== "time") buckets[key][k] += d[k]
-            }
-            buckets[key].count++
-        }
-
-    })
-
-    return Object.values(buckets).map(b => {
-
-        const avg = {time:b.time}
-
-        for(let k in b){
-            if(k !== "time" && k !== "count"){
-                avg[k] = b[k] / b.count
-            }
-        }
-
-        return avg
-
-    }).sort((a,b)=>a.time-b.time)
-
-}
-
-// ---------------- Load history once ----------------
-
-async function fetchHistory(){
-
-    const res = await fetch('/get_graph_data')
-    const data = await res.json()
-
-    const parsed = data.map(d => ({
-        ...d,
-        time:new Date(d.time)
-    }))
-
-    historyData = downsampleHistory(parsed)
-
-}
-
-// ---------------- Fetch realtime point ----------------
-
-async function fetchRealtimePoint(){
-
-    const res = await fetch('/get_latest_realtime')
-    const point = await res.json()
-
-    if(!point.time) return
-
-    realtimeData.push({
-        ...point,
-        time:new Date(point.time)
-    })
-
-    // keep only last x hours realtime
-    const cutoff = Date.now() - 5*60*1000
-
-    realtimeData = realtimeData.filter(
-        p => p.time.getTime() >= cutoff
-    )
-
-}
-
-const REALTIME_WINDOW = 5 * 60 * 1000
-
-function getChartData(){
-
-    const now = Date.now()
-    const realtimeStart = now - REALTIME_WINDOW
-
-    const history = historyData.filter(
-        d => d.time.getTime() < realtimeStart
-    )
-
-    const realtime = realtimeData.filter(
-        d => d.time.getTime() >= realtimeStart
-    )
-
-    return [...history, ...realtime]
-
-}
-
-
-// ---------------- Hook into glavni_program ----------------
-function glavni_program() {
-    updateLocalClock();
-    fetchAndUpdateValues();
-    fetchRealtimePoint();
-    updateCharts();
-
-
-    // Update SCADA visuals
-    const ELEKTRANA_SCADA_VIZ = document.getElementById("Slika_elektrana");
-    ELEKTRANA_SCADA_VIZ.textContent = backend_map['M_PV_proizvodnja_VIZ'].value;
-
-    const ActivePower = document.getElementById("Slika_Janitza");
-    ActivePower.textContent = backend_map['M_EnergyMeter'].value;
-
-    const Potrosnja = document.getElementById("Slika_potrosnja");
-    Potrosnja.textContent = backend_map["M_Potrosnja"].value; 
-
-    const Bat_snaga = document.getElementById("Slika_baterija_snaga");
-    Bat_snaga.textContent = backend_map["M_Baterija_snaga"].value; 
-
-    const Bat_SOC = document.getElementById("Slika_baterija_SOC");
-    Bat_SOC.textContent = `${backend_map['M_Baterija_SOC'].value} %`;
-
-
-    const temperature=document.getElementById("temperature");
-    temperature.textContent=backend_map["M_AMB_TEMP"].value + " °C";
-
-    const baseline=document.getElementById("Baseline");
-    baseline.textContent=backend_map["M_Baseline"].value;
-
-    const energy_Plus=document.getElementById("energyPlus");
-    energy_Plus.textContent=backend_map["M_energyPlus"].value; 
-    
-    const energy_Minus=document.getElementById("energyMinus");
-    energy_Minus.textContent=backend_map["M_energyMinus"].value;
-
-    const energy_Sum=document.getElementById("energySum");
-    energy_Sum.textContent=backend_map["M_energySum"].value;
-
-    const cijena_Sum=document.getElementById("cijenaSum");
-    cijena_Sum.textContent=backend_map["M_cijenaSum"].value;
-    
-    const energyBurzePlus=document.getElementById("energyBurzePlus");
-    energyBurzePlus.textContent=backend_map["M_energyBurzePlus"].value; 
-    
-    const energyBurzeMinus=document.getElementById("energyBurzeMinus");
-    energyBurzeMinus.textContent=backend_map["M_energyBurzeMinus"].value; 
-    
-    const energyBurzePlusSum=document.getElementById("energyBurzePlusSum");
-    energyBurzePlusSum.textContent=backend_map["M_energyBurzePlusSum"].value; 
-    
-    const cijenaBurzePlus=document.getElementById("cijenaBurzePlus");
-    cijenaBurzePlus.textContent=backend_map["M_cijenaBurzePlus"].value; 
-    
-    const energyBurzeNocnaPlus=document.getElementById("energyBurzeNocnaPlus");
-    energyBurzeNocnaPlus.textContent=backend_map["M_energyBurzeNocnaPlus"].value; 
-    
-    const energyBurzeNocnaMinus=document.getElementById("energyBurzeNocnaMinus");
-    energyBurzeNocnaMinus.textContent=backend_map["M_energyBurzeNocnaMinus"].value; 
-    
-    const energyBurzeMinusSum=document.getElementById("energyBurzeMinusSum");
-    energyBurzeMinusSum.textContent=backend_map["M_energyBurzeMinusSum"].value; 
-    
-    const cijenaBurzeMinus=document.getElementById("cijenaBurzeMinus");
-    cijenaBurzeMinus.textContent=backend_map["M_cijenaBurzeMinus"].value; 
-
-    const cijenaUkupno=document.getElementById("cijenaUkupno");
-    cijenaUkupno.textContent=backend_map["M_cijenaUkupno"].value; 
-        
-    const M_ENTSOE_cijena=document.getElementById("ENTSOE_cijena");
-    M_ENTSOE_cijena.textContent=backend_map["M_ENTSOE_cijena"].value; 
-    const OZRACENOST=document.getElementById("maxPVprocjena");
-    OZRACENOST.textContent=backend_map["M_OZRACENOST"].value;
-
-    const SOC_AUTO =document.getElementById("SOC_AUTO");
-    SOC_AUTO.textContent=backend_map["M_SOC_AUTO_VIZ"].value;
-
-    const M_ABS_POS_FLEX =document.getElementById("M_ABS_POS_FLEX");
-    M_ABS_POS_FLEX.textContent=backend_map["M_ABS_POS_FLEX"].value;
-
-    const M_ABS_NEG_FLEX =document.getElementById("M_ABS_NEG_FLEX");
-    M_ABS_NEG_FLEX.textContent=backend_map["M_ABS_NEG_FLEX"].value;
-
-    const M_DELTA_POS_FLEX =document.getElementById("M_DELTA_POS_FLEX");
-    M_DELTA_POS_FLEX.textContent=backend_map["M_DELTA_POS_FLEX"].value;
-
-    const M_DELTA_NEG_FLEX =document.getElementById("M_DELTA_NEG_FLEX");
-    M_DELTA_NEG_FLEX.textContent=backend_map["M_DELTA_NEG_FLEX"].value;
-
-    const M_PV_postotak =document.getElementById("M_PV_postotak");
-    M_PV_postotak.textContent=backend_map["M_PV_postotak"].value;
-
-    const M_Baterija_postotak =document.getElementById("M_Baterija_postotak");
-    M_Baterija_postotak.textContent=backend_map["M_Baterija_postotak"].value;
-
-
-    const M_HEP_podeseno =document.getElementById("M_HEP_podeseno");
-    M_HEP_podeseno.textContent=backend_map["M_HEP_podeseno"].value;
-
-	//update setpointa enna 
-	const ENNA_VIZ=document.getElementById("ENNA_ackt_viz"); 
-	const ENNA_ACKT_instanca=backend_map["M_ENNA_ACKT"].value; 
-
-    if (ENNA_ACKT_instanca==1){ 
-        // ENNA_VIZ.style.backgroundColor ="#aa0000" // CRV 
-        ENNA_VIZ.textContent = "Aktivna" } 
-    else{ 
-        // ENNA_VIZ.style.backgroundColor = "#00aa00" // ZEL 
-        ENNA_VIZ.textContent = "Neaktivna" } 
-    
-    const ENNA_setpoint_scada = document.getElementById("ENNA_setpoint_scada"); 
-    const ENNA_setpoint_scada_instanca=backend_map["M_ENNA_podesena_snaga"].value; //INSTANCE su ako ima više otvorenih prozora odjedanput, da se refresha backend sukladno zadnjem upisu
-
-    ENNA_setpoint_scada.textContent = ENNA_setpoint_scada_instanca; //ručni automatski upis -resfresh instanca 
-
-    const M_naziv_elektrane =document.getElementById("M_naziv_elektrane");
-    M_naziv_elektrane.textContent=backend_map["M_naziv_elektrane"].value;
-
-    const M_lokacija =document.getElementById("M_lokacija");
-    M_lokacija.textContent=backend_map["M_lokacija"].value;
-
-    const M_max_PV_proizvodnja =document.getElementById("M_max_PV_proizvodnja");
-    M_max_PV_proizvodnja.textContent=backend_map["M_max_PV_proizvodnja"].value;
-
-    // const M_url_DM =document.getElementById("M_url_DM");
-    // M_url_DM.textContent=backend_map["M_url_DM"].value;
-    document.getElementById("M_url_DM").href = backend_map["M_url_DM"].value;
-    document.getElementById("M_url_DM_2").href = backend_map["M_url_DM"].value;
-    
-    document.getElementById("M_url_ESS").href = backend_map["M_url_ESS"].value;
-    document.getElementById("M_url_ESS_2").href = backend_map["M_url_ESS"].value;
-    
-    document.getElementById("M_url_HEP").href = backend_map["M_url_HEP"].value;
-    document.getElementById("M_url_HEP_2").href = backend_map["M_url_HEP"].value;
-    document.getElementById("M_url_HEP_3").href = backend_map["M_url_HEP"].value;
-    const M_ACE_OL =document.getElementById("ACE_OL");
-    M_ACE_OL.textContent=backend_map["M_ACE_OL"].value; 
-}
-
-// ---------------- On page load ----------------
-window.onload = function() {          
-    fetchHistory();
-    initCharts();
-    fetchAndUpdateValues();
-    writeRegistersList.forEach(createWriteRegisterRow); // existing SCADA UI
-    //SendAndUpdateValues(); // initial send to backend
-    setDefaultDates();
-    sendDateRange(); // initial energy fetch
-};
-
-// Run main program every second
-setInterval(glavni_program, 1000);
-
-const radios = document.querySelectorAll('input[name="viewMode"]');
-
-radios.forEach(radio => {
-    radio.addEventListener('change', () => {
-        if (radio.checked) {
-            const chartPower = document.getElementById('chart_power');
-            const chartProduction = document.getElementById('chart_production');
-            const chartConsuption = document.getElementById('chart_consuption');
-            const chartSOC = document.getElementById('chart_SOC');
-            chartPower.style.display = 'none';      
-            chartProduction.style.display = 'none';      
-            chartConsuption.style.display = 'none';    
-            chartSOC.style.display = 'none';   
-            switch (radio.value) {
-                case 'power':                
-                    chartPower.style.display = 'block';              
-                break;
-                case 'production':
-                    chartProduction.style.display = 'block';           
-                break;
-                case 'consuption': 
-                    chartConsuption.style.display = 'block';  
-                break;
-                case 'soc': 
-                    chartSOC.style.display = 'block';  
-                break;
-            }
-        }
-    });
-});
-    
-</script>
-
-<script>
-        (function () {
-            function clamp(value, min, max) {
-                return Math.min(max, Math.max(min, value));
-            }
-
-            const bindings = [
-                { spanId: "Slika_baterija_SOC", mapKey: "M_Baterija_SOC", fillId: "socFillNew" },
-                { spanId: "Slika_elektrana", mapKey: "M_PV_proizvodnja", fillId: "pvFill" }
-            ];
-
-            function readBackendSoc(mapKey) {
-                if (typeof backend_map === "undefined") return 0;
-                const raw = backend_map?.[mapKey]?.value;
-                let value = Number(raw);
-                if (Number.isNaN(value)) return 0;
-                if(mapKey == "M_PV_proizvodnja"){
-                    const max = backend_map?.["MAX_PV_proizvodnja"]?.value;
-                    value = value / Number(max) * 100
-                }
-                return clamp(value, 0, 100);
-            }
-
-            function setFillFromBackend(mapKey, fillId) {
-                const fill = document.getElementById(fillId);
-                if (!fill) return;
-                const value = readBackendSoc(mapKey);
-                // if(fillId == "pvFill")
-                //     fill.style.width = value + " kW";
-                // else
-                fill.style.width = value + "%";
-                fill.dataset.empty = value <= 0 ? "true" : "false";
-            }
-
-            function updateSocSliders() {
-                for (const b of bindings) setFillFromBackend(b.mapKey, b.fillId);
-            }
-
-            // Expose for manual testing in DevTools
-            window.__scadaUpdateSocSliders = updateSocSliders;
-
-            function observe(binding) {
-                const span = document.getElementById(binding.spanId);
-                if (!span) return;
-                updateSocSliders();
-                const obs = new MutationObserver(() => updateSocSliders());
-                obs.observe(span, { characterData: true, childList: true, subtree: true });
-            }
-
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", () => {
-                    updateSocSliders();
-                    bindings.forEach(observe);
-                });
-            } else {
-                updateSocSliders();
-                bindings.forEach(observe);
-            }
-
-            // Activation status pill (do not modify legacy JS; it writes textContent + inline bg)
-            function getActivationStateFromText(text) {
-                const t = String(text ?? "").trim().toLowerCase();
-                if (!t) return "unknown";
-                // Prefer explicit inactive match first
-                if (t.includes("neaktiv")) return "inactive";
-                if (t.includes("aktiv")) return "active";
-                return "unknown";
-            }
-
-            function applyActivationState() {
-                const el = document.getElementById("ENNA_ackt_viz");
-                if (!el) return;
-                el.dataset.state = getActivationStateFromText(el.textContent);
-            }
-
-            function observeActivationStatus() {
-                const el = document.getElementById("ENNA_ackt_viz");
-                if (!el) return;
-                applyActivationState();
-                const obs = new MutationObserver(() => applyActivationState());
-                obs.observe(el, { characterData: true, childList: true, subtree: true });
-            }
-
-            // Miner status pill (legacy JS writes Running/Paused + inline colors)
-            function getMinerStateFromText(text) {
-                const t = String(text ?? "").trim().toLowerCase();
-                if (!t) return "unknown";
-                if (t.includes("pauzirano") || t.includes("neaktiv")) return "inactive";
-                if (t.includes("u radu") || t.includes("aktiv")) return "active";
-                return "unknown";
-            }
-
-            function applyMinerState() {
-                const el = document.getElementById("Slika_mineri");
-                if (!el) return;
-                el.dataset.state = getMinerStateFromText(el.textContent);
-            }
-
-            function observeMinerStatus() {
-                const el = document.getElementById("Slika_mineri");
-                if (!el) return;
-                applyMinerState();
-                const obs = new MutationObserver(() => applyMinerState());
-                obs.observe(el, { characterData: true, childList: true, subtree: true });
-            }
-
-            if (document.readyState === "loading") {
-                document.addEventListener("DOMContentLoaded", () => {
-                    observeActivationStatus();
-                    observeMinerStatus();
-                });
-            } else {
-                observeActivationStatus();
-                observeMinerStatus();
-            }
-
-            // Chart.js theme adjustments (canvas; cannot be styled by CSS)
-            window.addEventListener("load", () => {
-            const chart = charts["janitzaChart"];
-            const chart_1 = charts["janitzaChart_1"];
-            const chart_2 = charts["janitzaChart_2"];
-            const chart_3 = charts["janitzaChart_3"];
-                if (!chart || !chart.options 
-                    || !chart_1 || !chart_1.options
-                    || !chart_2 || !chart_2.options
-                    || !chart_3 || !chart_3.options) return;
-
-                const root = getComputedStyle(document.documentElement);
-                const muted = root.getPropertyValue("--muted").trim() || "#A7B0C2";
-                const grid = root.getPropertyValue("--grid").trim() || "#97a9cc";
-                const blue = root.getPropertyValue("--blue").trim() || "#2F6BFF";
-                const green = root.getPropertyValue("--green").trim() || "#22C55E";
-                const orange = root.getPropertyValue("--orange").trim() || "#F59E0B";
-                const red = root.getPropertyValue("--red").trim() || "#FF0000";
-
-                const datasets = chart.data?.datasets || [];
-                if (datasets[0]) {
-                    datasets[0].borderColor = blue;
-                    datasets[0].backgroundColor = "rgba(47,107,255,0.10)";
-                }
-                if (datasets[1]) {
-                    datasets[1].borderColor = green;
-                    datasets[1].backgroundColor = "rgba(34,197,94,0.10)";
-                }
-                const legendLabels = chart.options.plugins?.legend?.labels;
-                if (legendLabels) {
-                    legendLabels.color = muted;
-                    legendLabels.font = { size: 12, weight: "600" };
-                }
-
-                chart.update("none");
-                
-                const datasets_1 = chart_1.data?.datasets || [];
-                if (datasets_1[0]) {
-                    datasets_1[0].borderColor = orange;
-                    datasets_1[0].backgroundColor = "rgba(245,158,11,0.10)";
-                }
-                if (datasets_1[1]) {
-                    datasets_1[1].borderColor = green;
-                    datasets_1[1].backgroundColor = "rgba(34,197,94,0.10)";
-                }
-
-                const legendLabels_1 = chart_1.options.plugins?.legend?.labels;
-                if (legendLabels_1) {
-                    legendLabels_1.color = muted;
-                    legendLabels_1.font = { size: 12, weight: "600" };
-                }
-
-                chart_1.update("none");
-                
-                const datasets_2 = chart_2.data?.datasets || [];
-                
-                if (datasets_2[0]) {
-                    datasets_2[0].borderColor = red;
-                    datasets_2[0].backgroundColor = "rgba(239,20,20,0.10)";
-                }
-                if (datasets_2[1]) {
-                    datasets_2[1].borderColor = blue;
-                    datasets_2[1].backgroundColor = "rgba(47,107,255,0.10)";
-                }
-                const legendLabels_2 = chart_2.options.plugins?.legend?.labels;
-                if (legendLabels_2) {
-                    legendLabels_2.color = muted;
-                    legendLabels_2.font = { size: 12, weight: "600" };
-                }
-
-                
-                chart_2.update("none");
-                
-                const datasets_3 = chart_3.data?.datasets || [];
-                
-                if (datasets_3[0]) {
-                    datasets_3[0].borderColor = green;
-                    datasets_3[0].backgroundColor = "rgba(34,197,94,0.10)";
-                }
-                if (datasets_3[1]) {
-                    datasets_3[1].borderColor = blue;
-                    datasets_3[1].backgroundColor = "rgba(47,107,255,0.10)";
-                }
-                const legendLabels_3 = chart_3.options.plugins?.legend?.labels;
-                if (legendLabels_3) {
-                    legendLabels_3.color = muted;
-                    legendLabels_3.font = { size: 12, weight: "600" };
-                }
-
-                chart_3.options.scales.y.min = 0;
-                chart_3.options.scales.y.max = 100;
-                chart_3.update("none");
-            });
-        })();
-    </script>
-
-</body>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>				
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/hr.js"></script>																				  
+    <script src="../static/script.js"></script>
+
+    </body>
 </html>
