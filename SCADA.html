@@ -409,6 +409,11 @@
                     <span class="custom-radio" style="min-width: 18px;"></span>
                     SOC / Optimalni SOC
                 </label>
+                <label class="radio-option">
+                    <input type="radio" name="viewMode" value="baseline" />
+                    <span class="custom-radio" style="min-width: 18px;"></span>
+                    Razrada baseline-a
+                </label>
             </div>
         </div>
 
@@ -453,6 +458,15 @@
             </div>
         </div>
 
+		<div  id="chart_baseline" class="chart-container" style="display: none;">
+			<div class="chart-header">
+				<h3>Vizualizacija</h3>
+				<button class="reset-zoom-btn" data-chart="janitzaChart_4">Reset Zoom</button>
+			</div>
+			<div style="height:450px;">
+				<canvas id="janitzaChart_4"></canvas>
+			</div>
+		</div> 
         <!-- MODAL ZA RUČNI UPIS-->
         <div id="manualInputModal" class="modal" style="display:none;">
             <div class="modal-content">
