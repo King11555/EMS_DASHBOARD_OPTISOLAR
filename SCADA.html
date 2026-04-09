@@ -113,12 +113,17 @@
                     </div>
                 </div>
                 
-                <div >            
-                    <div style="display: ruby;">
-                        <span class="register-label text-right">Optimalni SOC: </span> 
-                        <span class="scada-main-type" id="SOC_AUTO">--</span> 
-                        <span class="scada-main-type"> %</span> 
-                    </div>
+                <div style="display: flex;">
+                    <div class="energy-line" style="gap: 3px;">            
+                        <span class="energy-label">Podešeni SOC: </span>
+                        <span class="register-value energy_label_font scada-main-type" id="SOC_AUTO">--</span>
+                        <span class="scada-main-type"> %</span>
+                    </div>     
+                    <div class="energy-line" style="gap: 3px; padding-left: 0px;">
+                        <span class="energy-label">AI SOC: </span>
+                        <span class="register-value energy_label_font scada-main-type" id="SOC_AUTO_AI">--</span>
+                        <span class="scada-main-type"> %</span>
+                    </div>     
                 </div>
             </div>
 
