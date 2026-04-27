@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">
+  <g fill="none" stroke="#ffffff" stroke-width="1">
+    <!-- main grid -->
+    <path d="M40 0V120M80 0V120M0 40H120M0 80H120" stroke-opacity="0.10" />
+    <!-- frame -->
+    <path d="M0.5 0.5H119.5V119.5H0.5Z" stroke-opacity="0.16" />
+    <!-- crosshair ticks -->
+    <path d="M60 2V10M60 110V118M2 60H10M110 60H118" stroke-linecap="round" stroke-opacity="0.14" />
+  </g>
+
+  <!-- dots at intersections -->
+  <g fill="#ffffff" fill-opacity="0.10">
+    <circle cx="40" cy="40" r="1" />
+    <circle cx="80" cy="40" r="1" />
+    <circle cx="40" cy="80" r="1" />
+    <circle cx="80" cy="80" r="1" />
+  </g>
+
+  <!-- subtle diagonal detail -->
+  <path d="M8 112L112 8" stroke="#ffffff" stroke-width="1" stroke-opacity="0.06" />
+</svg>

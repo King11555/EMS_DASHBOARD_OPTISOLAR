@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="900" viewBox="0 0 1600 900">
+  <defs>
+    <linearGradient id="fade" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0%" stop-color="#fff" stop-opacity="0.20"/>
+      <stop offset="45%" stop-color="#fff" stop-opacity="0.10"/>
+      <stop offset="100%" stop-color="#fff" stop-opacity="0.02"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Perspective hex field: bigger near bottom, smaller towards top -->
+  <g fill="none" stroke="url(#fade)" stroke-width="1">
+    <!-- Row 1 (near) r=95, y=760 -->
+    <path d="M95 760 L47.5 842.27 L-47.5 842.27 L-95 760 L-47.5 677.73 L47.5 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M237.5 760 L190 842.27 L95 842.27 L47.5 760 L95 677.73 L190 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M380 760 L332.5 842.27 L237.5 842.27 L190 760 L237.5 677.73 L332.5 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M522.5 760 L475 842.27 L380 842.27 L332.5 760 L380 677.73 L475 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M665 760 L617.5 842.27 L522.5 842.27 L475 760 L522.5 677.73 L617.5 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M807.5 760 L760 842.27 L665 842.27 L617.5 760 L665 677.73 L760 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M950 760 L902.5 842.27 L807.5 842.27 L760 760 L807.5 677.73 L902.5 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M1092.5 760 L1045 842.27 L950 842.27 L902.5 760 L950 677.73 L1045 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M1235 760 L1187.5 842.27 L1092.5 842.27 L1045 760 L1092.5 677.73 L1187.5 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M1377.5 760 L1330 842.27 L1235 842.27 L1187.5 760 L1235 677.73 L1330 677.73 Z" stroke-opacity="0.14"/>
+    <path d="M1520 760 L1472.5 842.27 L1377.5 842.27 L1330 760 L1377.5 677.73 L1472.5 677.73 Z" stroke-opacity="0.14"/>
+
+    <!-- Row 2 (mid) r=70, y=560 -->
+    <path d="M70 560 L35 620.62 L-35 620.62 L-70 560 L-35 499.38 L35 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M175 560 L140 620.62 L70 620.62 L35 560 L70 499.38 L140 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M280 560 L245 620.62 L175 620.62 L140 560 L175 499.38 L245 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M385 560 L350 620.62 L280 620.62 L245 560 L280 499.38 L350 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M490 560 L455 620.62 L385 620.62 L350 560 L385 499.38 L455 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M595 560 L560 620.62 L490 620.62 L455 560 L490 499.38 L560 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M700 560 L665 620.62 L595 620.62 L560 560 L595 499.38 L665 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M805 560 L770 620.62 L700 620.62 L665 560 L700 499.38 L770 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M910 560 L875 620.62 L805 620.62 L770 560 L805 499.38 L875 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M1015 560 L980 620.62 L910 620.62 L875 560 L910 499.38 L980 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M1120 560 L1085 620.62 L1015 620.62 L980 560 L1015 499.38 L1085 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M1225 560 L1190 620.62 L1120 620.62 L1085 560 L1120 499.38 L1190 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M1330 560 L1295 620.62 L1225 620.62 L1190 560 L1225 499.38 L1295 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M1435 560 L1400 620.62 L1330 620.62 L1295 560 L1330 499.38 L1400 499.38 Z" stroke-opacity="0.11"/>
+    <path d="M1540 560 L1505 620.62 L1435 620.62 L1400 560 L1435 499.38 L1505 499.38 Z" stroke-opacity="0.11"/>
+
+    <!-- Row 3 (far) r=52, y=400 -->
+    <path d="M52 400 L26 445.03 L-26 445.03 L-52 400 L-26 354.97 L26 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M130 400 L104 445.03 L52 445.03 L26 400 L52 354.97 L104 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M208 400 L182 445.03 L130 445.03 L104 400 L130 354.97 L182 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M286 400 L260 445.03 L208 445.03 L182 400 L208 354.97 L260 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M364 400 L338 445.03 L286 445.03 L260 400 L286 354.97 L338 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M442 400 L416 445.03 L364 445.03 L338 400 L364 354.97 L416 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M520 400 L494 445.03 L442 445.03 L416 400 L442 354.97 L494 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M598 400 L572 445.03 L520 445.03 L494 400 L520 354.97 L572 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M676 400 L650 445.03 L598 445.03 L572 400 L598 354.97 L650 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M754 400 L728 445.03 L676 445.03 L650 400 L676 354.97 L728 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M832 400 L806 445.03 L754 445.03 L728 400 L754 354.97 L806 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M910 400 L884 445.03 L832 445.03 L806 400 L832 354.97 L884 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M988 400 L962 445.03 L910 445.03 L884 400 L910 354.97 L962 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1066 400 L1040 445.03 L988 445.03 L962 400 L988 354.97 L1040 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1144 400 L1118 445.03 L1066 445.03 L1040 400 L1066 354.97 L1118 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1222 400 L1196 445.03 L1144 445.03 L1118 400 L1144 354.97 L1196 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1300 400 L1274 445.03 L1222 445.03 L1196 400 L1222 354.97 L1274 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1378 400 L1352 445.03 L1300 445.03 L1274 400 L1300 354.97 L1352 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1456 400 L1430 445.03 L1378 445.03 L1352 400 L1378 354.97 L1430 354.97 Z" stroke-opacity="0.08"/>
+    <path d="M1534 400 L1508 445.03 L1456 445.03 L1430 400 L1456 354.97 L1508 354.97 Z" stroke-opacity="0.08"/>
+
+    <!-- Row 4 (very far) r=38, y=270 -->
+    <path d="M38 270 L19 302.91 L-19 302.91 L-38 270 L-19 237.09 L19 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M95 270 L76 302.91 L38 302.91 L19 270 L38 237.09 L76 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M152 270 L133 302.91 L95 302.91 L76 270 L95 237.09 L133 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M209 270 L190 302.91 L152 302.91 L133 270 L152 237.09 L190 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M266 270 L247 302.91 L209 302.91 L190 270 L209 237.09 L247 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M323 270 L304 302.91 L266 302.91 L247 270 L266 237.09 L304 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M380 270 L361 302.91 L323 302.91 L304 270 L323 237.09 L361 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M437 270 L418 302.91 L380 302.91 L361 270 L380 237.09 L418 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M494 270 L475 302.91 L437 302.91 L418 270 L437 237.09 L475 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M551 270 L532 302.91 L494 302.91 L475 270 L494 237.09 L532 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M608 270 L589 302.91 L551 302.91 L532 270 L551 237.09 L589 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M665 270 L646 302.91 L608 302.91 L589 270 L608 237.09 L646 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M722 270 L703 302.91 L665 302.91 L646 270 L665 237.09 L703 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M779 270 L760 302.91 L722 302.91 L703 270 L722 237.09 L760 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M836 270 L817 302.91 L779 302.91 L760 270 L779 237.09 L817 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M893 270 L874 302.91 L836 302.91 L817 270 L836 237.09 L874 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M950 270 L931 302.91 L893 302.91 L874 270 L893 237.09 L931 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1007 270 L988 302.91 L950 302.91 L931 270 L950 237.09 L988 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1064 270 L1045 302.91 L1007 302.91 L988 270 L1007 237.09 L1045 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1121 270 L1102 302.91 L1064 302.91 L1045 270 L1064 237.09 L1102 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1178 270 L1159 302.91 L1121 302.91 L1102 270 L1121 237.09 L1159 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1235 270 L1216 302.91 L1178 302.91 L1159 270 L1178 237.09 L1216 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1292 270 L1273 302.91 L1235 302.91 L1216 270 L1235 237.09 L1273 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1349 270 L1330 302.91 L1292 302.91 L1273 270 L1292 237.09 L1330 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1406 270 L1387 302.91 L1349 302.91 L1330 270 L1349 237.09 L1387 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1463 270 L1444 302.91 L1406 302.91 L1387 270 L1406 237.09 L1444 237.09 Z" stroke-opacity="0.06"/>
+    <path d="M1520 270 L1501 302.91 L1463 302.91 L1444 270 L1463 237.09 L1501 237.09 Z" stroke-opacity="0.06"/>
+
+    <!-- Subtle vanishing guide lines -->
+    <path d="M0 900 L800 120" stroke-opacity="0.04"/>
+    <path d="M1600 900 L800 120" stroke-opacity="0.04"/>
+  </g>
+</svg>
