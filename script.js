@@ -43,11 +43,20 @@ window.onload = function() {
 // Run main program every second
 setInterval(glavni_program, 1000);
 
+function reloadPage() {  
+    window.location.reload();
+}
+
+// Run main program every second
+setInterval(reloadPage, 300000);
+
+
 //kompletna mapa s backenda na frontend
 const backend_map ={
     "M_PV_proizvodnja": {value: 0},
     "M_PV_proizvodnja_VIZ": {value: 0},
     "MAX_PV_proizvodnja": {value: 0},
+    "MAX_potrosnja": {value: 0},
     "M_PV_postotak": {value: 0},
     "M_EnergyMeter": {value:0},
     "M_Baterija_SOC": {value: 0},
@@ -61,6 +70,7 @@ const backend_map ={
     "M_DELTA_NEG_FLEX": {value:0},
 	"M_HEP_podeseno": {value:0},
     "M_Potrosnja": {value:0},
+    "M_Potrosnja_VIZ": {value:0},
     "M_OZRACENOST": {value:0},
     "M_SOC_AUTO_VIZ":{value:0},
     "M_SOC_AUTO_AI":{value:0},
@@ -99,6 +109,7 @@ const backend_map ={
     "M_url_ESS":{value:""},
     "M_url_HEP":{value:""},
     "M_max_PV_proizvodnja":{value:""},
+    "M_max_potrosnja":{value:""},
     "M_ACE_OL":{value:0},
     "M_VARIJABLE":{value:""}
 };
@@ -107,7 +118,7 @@ const backend_map ={
 const valueBindings = {
     Slika_elektrana: "M_PV_proizvodnja_VIZ",
     Slika_Janitza: "M_EnergyMeter",
-    Slika_potrosnja: "M_Potrosnja",
+    Slika_potrosnja: "M_Potrosnja_VIZ",
     Slika_baterija_snaga: "M_Baterija_snaga",
 
     Baseline: "M_Baseline",
@@ -143,6 +154,7 @@ const valueBindings = {
     M_naziv_elektrane: "M_naziv_elektrane",
     M_lokacija: "M_lokacija",
     M_max_PV_proizvodnja: "M_max_PV_proizvodnja",
+    M_max_potrosnja: "M_max_potrosnja",
     Slika_baterija_SOC: "M_Baterija_SOC",
     temperature: "M_AMB_TEMP",
 
@@ -213,8 +225,8 @@ function updateSpecialValues() {
     });
 }
 
-function updateColor() {
-    const el = document.getElementById("cijenaUkupno");
+function updateColor(element) {
+    const el = element;
 
     let text = el.textContent
         .replace(".", "")      // fix decimal separator
@@ -255,7 +267,9 @@ function fetchAndUpdateValues() {
             }
         })
         .catch(err => console.error("Error fetching mode:", err));  
-    updateColor();
+    
+    updateColor(document.getElementById("cijenaUkupno"));
+    updateColor(document.getElementById("cijenaSum"));
 }
 
 function SendAndUpdateValues() {    
@@ -500,6 +514,7 @@ function sendManualValue() {
 
     const bindings = [
         { spanId: "Slika_baterija_SOC", mapKey: "M_Baterija_SOC", fillId: "socFillNew" },
+        { spanId: "Slika_potrosnja", mapKey: "M_Potrosnja", fillId: "consumptionFill" },
         { spanId: "Slika_elektrana", mapKey: "M_PV_proizvodnja", fillId: "pvFill" }
     ];
 
@@ -510,6 +525,11 @@ function sendManualValue() {
         if (Number.isNaN(value)) return 0;
         if(mapKey == "M_PV_proizvodnja"){
             const max = backend_map?.["MAX_PV_proizvodnja"]?.value;
+            value = value / Number(max) * 100
+        }
+        
+        if(mapKey == "M_Potrosnja"){
+            const max = backend_map?.["MAX_potrosnja"]?.value;
             value = value / Number(max) * 100
         }
         return clamp(value, 0, 100);
@@ -614,18 +634,22 @@ function sendManualValue() {
     const chart_1 = charts["janitzaChart_1"];
     const chart_2 = charts["janitzaChart_2"];
     const chart_3 = charts["janitzaChart_3"];
+    const chart_4 = charts["janitzaChart_4"];
         if (!chart || !chart.options 
             || !chart_1 || !chart_1.options
             || !chart_2 || !chart_2.options
-            || !chart_3 || !chart_3.options) return;
+            || !chart_3 || !chart_3.options
+            || !chart_4 || !chart_4.options) return;
 
         const root = getComputedStyle(document.documentElement);
         const muted = root.getPropertyValue("--muted").trim() || "#A7B0C2";
-        const grid = root.getPropertyValue("--grid").trim() || "#97a9cc";
-        const blue = root.getPropertyValue("--blue").trim() || "#2F6BFF";
-        const green = root.getPropertyValue("--green").trim() || "#22C55E";
-        const orange = root.getPropertyValue("--orange").trim() || "#F59E0B";
-        const red = root.getPropertyValue("--red").trim() || "#FF0000";
+        const grid = root.getPropertyValue("#b4c1db");
+        const blue = root.getPropertyValue("--blue").trim() || "#2F6BFF"; //"rgba(47,107,255,0.10)"
+        const green = root.getPropertyValue("--green").trim() || "#22C55E"; //"rgba(34,197,94,0.10)"
+        const orange = root.getPropertyValue("--orange").trim() || "#F59E0B"; //"rgba(245,158,11,0.10)"
+        const red = root.getPropertyValue("--red").trim() || "#FF0000"; //"rgba(239,20,20,0.10)"
+        const brown = root.getPropertyValue("--brown").trim() || "#43270f"; //"rgba(67, 39, 15, 0.10)"
+        const magenta = root.getPropertyValue("--magenta").trim() || "#ff80ff"; // "rgba(255,128,255,0.10)"
 
         const datasets = chart.data?.datasets || [];
         if (datasets[0]) {
@@ -695,30 +719,54 @@ function sendManualValue() {
             datasets_3[2].borderColor = red;
             datasets_3[2].backgroundColor = "rgba(239,20,20,0.10)";
         }
+        if (datasets_3[3]) {
+            datasets_3[3].borderColor = orange;
+            datasets_3[3].backgroundColor = "rgba(245,158,11,0.10)";
+        }
+        if (datasets_3[4]) {
+            datasets_3[4].borderColor = magenta;
+            datasets_3[4].backgroundColor = "rgba(255,128,255,0.10)";
+        }
         const legendLabels_3 = chart_3.options.plugins?.legend?.labels;
         if (legendLabels_3) {
             legendLabels_3.color = muted;
             legendLabels_3.font = { size: 12, weight: "600" };
         }
 
-        chart_3.options.scales.y.min = 0;
-        chart_3.options.scales.y.max = 100;
         chart_3.update("none");
+
+        const datasets_4 = chart_4.data?.datasets || [];
+                
+        if (datasets_4[0]) {
+            datasets_4[0].borderColor = green;
+            datasets_4[0].backgroundColor = "rgba(34,197,94,0.10)";
+        }
+        if (datasets_4[1]) {
+            datasets_4[1].borderColor = blue;
+            datasets_4[1].backgroundColor = "rgba(47,107,255,0.10)";
+        }
+        if (datasets_4[2]) {
+            datasets_4[2].borderColor = red;
+            datasets_4[2].backgroundColor = "rgba(239,20,20,0.10)";
+        }
+        if (datasets_4[3]) {
+            datasets_4[3].borderColor = orange;
+            datasets_4[3].backgroundColor = "rgba(245,158,11,0.10)";
+        }
+        if (datasets_4[4]) {
+            datasets_4[4].borderColor = magenta;
+            datasets_4[4].backgroundColor = "rgba(255,128,255,0.10)";
+        }
+        const legendLabels_4 = chart_4.options.plugins?.legend?.labels;
+        if (legendLabels_4) {
+            legendLabels_4.color = muted;
+            legendLabels_4.font = { size: 12, weight: "600" };
+        }
+        
+        chart_4.update("none");
     });
 })();    
 
-
-function openDataPopup() {
-
-    const overlay = document.getElementById("overlay");
-
-    overlay.style.display = "flex";   // make it visible again
-
-    // small delay ensures animation works properly
-    setTimeout(() => {
-        overlay.classList.remove("hidden");
-    }, 10);
-}
 
 function openDataPopupAFRR() {
 
@@ -735,11 +783,11 @@ function openDataPopupAFRR() {
 function openDateModal() {
     
     //startPicker.setDate(firstDay);
-    startPicker.setDate(today);
+    startPicker.setDate(firstDay);
     endPicker.setDate(today);
 
     const overlayDate = document.getElementById("overlayDate");
-
+    
     overlayDate.style.display = "flex";   // make it visible again
 
     // small delay ensures animation works properly
@@ -750,18 +798,11 @@ function openDateModal() {
 }
 
 function closePopup() {
-    const overlay = document.getElementById("overlay");
-    overlay.classList.add("hidden");
-
     const overlayAFRR = document.getElementById("overlayAFRR");
     overlayAFRR.classList.add("hidden");
 
     const overlayDate = document.getElementById("overlayDate");
     overlayDate.classList.add("hidden");
-
-    setTimeout(() => {
-        overlay.style.display = "none";
-    }, 300);
 }
 
 // Close with ESC key
@@ -827,10 +868,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     endPicker = flatpickr("#endDate", {
         dateFormat: "d.m.Y.",
-        locale: "hr",          
-        onChange: function(selectedDates) {
-            startPicker.set("maxDate", selectedDates[0]);
-        }
+        locale: "hr"
     });
 
 });
@@ -849,7 +887,20 @@ function sendDateRange() {
 
     const start = formatDate(startRaw);
     const end = formatDate(endRaw);
+
+    let datumiIspis = document.getElementById("datumi_ispis");
     
+    let text = ""
+    
+    if(start == end){
+        text = startRaw 
+    }
+    else{
+        text = startRaw + " " + endRaw
+    }
+
+    datumiIspis.textContent = text;
+
     if (!start || !end || start == "undefined-undefined-" || end == "undefined-undefined-") {
         alert("Odaberi datume");
         return;
@@ -873,7 +924,7 @@ function sendDateRange() {
 function setDefaultDates() {
 
     today = new Date();
-
+    firstDay = new Date();
     function formatDateLocal(date) {
         const y = date.getFullYear();
         const m = String(date.getMonth() + 1).padStart(2, "0");
@@ -883,18 +934,9 @@ function setDefaultDates() {
       
     const endDate = formatDateLocal(today);
 
-    firstDay = new Date(
-        today.getFullYear(),
-        today.getMonth(),
-        1
-    );
-
-    //const startDate = formatDateLocal(firstDay);
-
     document.getElementById("startDate").value = endDate;
     document.getElementById("endDate").value = endDate;
 }
-
 
 
 function updateLocalClock() {
@@ -961,11 +1003,13 @@ const chartConfigs = [
     y1: "soc",
     y2: "optimalni_soc",
     y3: "SOC_dohvat",
+    y4: "CROPEX",
+    y5: "SOC_izracun",
     label1: "Trenutni SOC",
     label2: "Podešeni SOC",
     label3: "AI SOC",
-    min: 0,
-    max: 100
+    label4: "CROPEX",
+    label5: "Izračunati SOC"
 }
 ]
 
@@ -985,310 +1029,6 @@ const chartConfigsCustom = [
 }
 ]
 
-//inicijalizacija chartova
-function initCharts(){
-
-    chartConfigs.forEach(cfg => {
-
-        const ctx = document.getElementById(cfg.id).getContext('2d')
-        if(cfg.id == "janitzaChart_3")
-            charts[cfg.id] = new Chart(ctx, {
-
-                type:'line',
-
-                data:{
-                    labels:[],
-                    datasets:[
-                    {
-                        label:cfg.label1,
-                        data:[],
-                        tension:0.3,
-                        pointRadius:0
-                    },
-                    {
-                        label:cfg.label2,
-                        data:[],
-                        tension:0.3,
-                        pointRadius:0
-                    },
-                    {
-                        label:cfg.label3,
-                        data:[],
-                        tension:0.3,
-                        pointRadius:0
-                    }]
-                },
-
-                options:{
-                    responsive:true,
-                    animation:false,
-                    maintainAspectRatio:false,
-
-                    plugins:{
-                        zoom:{
-                            pan:{enabled:true,mode:'x'},
-                            zoom:{
-                                wheel:{enabled:true},
-                                pinch:{enabled:true},
-                                mode:'x'
-                            }
-                        }
-                    },
-
-                    scales:{
-
-                        x:{
-                            ticks:{color:"#ffffff"},
-                            grid:{color:"#97a9cc"}
-                        },
-
-                        y:{
-                            min:cfg.min,
-                            max:cfg.max,
-                            ticks:{color:"#ffffff"},
-                            grid:{color:"#97a9cc"}
-                        }
-                    }
-                }
-
-            })
-        else
-            charts[cfg.id] = new Chart(ctx, {
-
-                type:'line',
-
-                data:{
-                    labels:[],
-                    datasets:[
-                    {
-                        label:cfg.label1,
-                        data:[],
-                        tension:0.3,
-                        pointRadius:0
-                    },
-                    {
-                        label:cfg.label2,
-                        data:[],
-                        tension:0.3,
-                        pointRadius:0
-                    }]
-                },
-
-                options:{
-                    responsive:true,
-                    animation:false,
-                    maintainAspectRatio:false,
-
-                    plugins:{
-                        zoom:{
-                            pan:{enabled:true,mode:'x'},
-                            zoom:{
-                                wheel:{enabled:true},
-                                pinch:{enabled:true},
-                                mode:'x'
-                            }
-                        }
-                    },
-
-                    scales:{
-
-                        x:{
-                            ticks:{color:"#ffffff"},
-                            grid:{color:"#97a9cc"}
-                        },
-
-                        y:{
-                            min:cfg.min,
-                            max:cfg.max,
-                            ticks:{color:"#ffffff"},
-                            grid:{color:"#97a9cc"}
-                        }
-                    }
-                }
-
-            })
-    })
-
-    
-    chartConfigsCustom.forEach(cfg => {
-
-        const ctx = document.getElementById(cfg.id).getContext('2d')
-
-        charts[cfg.id] = new Chart(ctx, {
-
-            type:'line',
-
-            data:{
-                labels:[],
-                datasets:[
-                {
-                    label:cfg.label1,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label2,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label3,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label4,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label5,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                }]
-            },
-
-            options:{
-                responsive:true,
-                animation:false,
-                maintainAspectRatio:false,
-
-                plugins:{
-                    zoom:{
-                        pan:{enabled:true,mode:'x'},
-                        zoom:{
-                            wheel:{enabled:true},
-                            pinch:{enabled:true},
-                            mode:'x'
-                        }
-                    }
-                },
-
-                scales:{
-                    
-                    x:{
-                        ticks:{color:"#ffffff"},
-                        grid:{color:"#97a9cc"}
-                    },
-
-                    y:{
-                        min:cfg.min,
-                        max:cfg.max,
-                        ticks:{color:"#ffffff"},
-                        grid:{color:"#97a9cc"}
-                    }
-                }
-            },
-            plugins: cfg.id === "janitzaChart_4"
-                    ? [aktivacijaBackgroundPlugin]
-                    : []
-
-        })
-
-    })
-}
-
-const aktivacijaBackgroundPlugin = {
-    id: 'aktivacijaBackground',
-
-    beforeDraw(chart) {
-
-        // apply ONLY to janitzaChart_4
-        if (chart.canvas.id !== "janitzaChart_4") return;
-
-        const { ctx, chartArea, scales } = chart;
-        const dataset = chart.data.datasets[0]?.data; // reference dataset
-        const rawData = chart.$rawData || []; // we'll attach this later
-
-        if (!dataset || !dataset.length || !rawData.length) return;
-
-        ctx.save();
-
-        for (let i = 0; i < rawData.length; i++) {
-
-            const point = rawData[i];
-            if (!point) continue;
-
-            const x = scales.x.getPixelForValue(chart.data.labels[i]);
-            const nextX = scales.x.getPixelForValue(chart.data.labels[i + 1]) || chartArea.right;
-
-            // 👉 CONDITION
-            if (point.aktivacija === 1) {
-                ctx.fillStyle = "rgba(34,197,94,0.30)"; // green
-            } else {
-                continue; // keep default background
-            }
-
-            ctx.fillRect(
-                x,
-                chartArea.top,
-                nextX - x,
-                chartArea.bottom - chartArea.top
-            );
-        }
-
-        ctx.restore();
-    }
-};
-
-function updateCharts(){
-
-    const dataset = getChartData()
-
-    const labels = dataset.map(d =>
-        d.time.toLocaleTimeString('hr-HR',{hour12:false})
-    )
-
-    chartConfigs.forEach(cfg => {
-
-        const chart = charts[cfg.id]
-        if(!chart) return
-
-        chart.data.labels = labels
-        chart.data.datasets[0].data = dataset.map(d => d[cfg.y1])
-        chart.data.datasets[1].data = dataset.map(d => d[cfg.y2])
-        
-        if(cfg.id == "janitzaChart_3")
-            chart.data.datasets[2].data = dataset.map(d => d[cfg.y3])
-
-        chart.update('none')
-
-    })
-    updateChartsCustom()
-}
-
-function updateChartsCustom(){
-    
-    const dataset = getChartDataCustom()
-
-    const labels = dataset.map(d =>
-        d.time.toLocaleTimeString('hr-HR',{hour12:false})
-    )
-
-    chartConfigsCustom.forEach(cfg => {
-
-        const chart = charts[cfg.id]
-        if(!chart) return
-
-        chart.$rawData = dataset;
-        
-        chart.data.labels = labels       
-        chart.data.datasets[0].data = dataset.map(d => d[cfg.y1] ?? null)
-        chart.data.datasets[1].data = dataset.map(d => d[cfg.y2] ?? null)
-        chart.data.datasets[2].data = dataset.map(d => d[cfg.y3] ?? null)
-        chart.data.datasets[3].data = dataset.map(d => d[cfg.y4] ?? null)
-        chart.data.datasets[4].data = dataset.map(d => d[cfg.y5] ?? null)
-
-        chart.update('none')
-
-    })
-}
-
 
 // ---------------- Downsample history (15min buckets) ----------------
 
@@ -1300,7 +1040,7 @@ function downsampleHistory(data){
 
         const bucket = new Date(d.time)
         const m = bucket.getMinutes()
-        const rounded = Math.floor(m/1)*1
+        const rounded = Math.floor(m/2)*2
 
         bucket.setMinutes(rounded,0,0)
         const key = bucket.getTime()
@@ -1349,6 +1089,109 @@ function downsampleHistory(data){
 }
 
 
+const doubleTapZoomInPlugin = {
+    id: 'doubleTapZoomIn',
+
+    afterInit(chart) {
+        let lastTap = 0;
+
+        chart.canvas.addEventListener('touchend', (e) => {
+            const now = Date.now();
+            const delta = now - lastTap;
+
+            if (delta > 0 && delta < 300) {
+
+                const xScale = chart.scales.x;
+
+                const min = xScale.min;
+                const max = xScale.max;
+
+                const range = max - min;
+
+                // zoom in factor
+                const zoomFactor = 0.7;
+
+                const center = min + range / 2;
+                const newRange = range * zoomFactor;
+
+                chart.zoomScale(
+                    'x',
+                    {
+                        min: center - newRange / 2,
+                        max: center + newRange / 2
+                    },
+                    'default'
+                );
+
+                e.preventDefault();
+            }
+
+            lastTap = now;
+
+        }, { passive: false });
+    }
+};
+
+
+const aktivacijaBackgroundPlugin = {
+    id: 'aktivacijaBackground',
+
+    beforeDraw(chart) {
+
+        if (
+            chart.canvas.id !== "janitzaChart_3" &&
+            chart.canvas.id !== "janitzaChart_4"
+        ) return;
+
+        const { ctx, chartArea } = chart;
+        const rawData = chart.$rawData || [];
+
+        if (!rawData.length) return;
+
+        // use first visible dataset meta
+        const meta = chart.getDatasetMeta(0);
+
+        if (!meta?.data?.length) return;
+
+        ctx.save();
+
+        for (let i = 0; i < rawData.length; i++) {
+
+            const point = rawData[i];
+            if (!point) continue;
+
+            if (point.aktivacija === 0) continue;
+
+            const current = meta.data[i];
+            const next = meta.data[i + 1];
+
+            if (!current) continue;
+
+            const x = current.x;
+            const nextX = next ? next.x : chartArea.right;
+
+            if (point.aktivacija_vrsta > 0) {
+                ctx.fillStyle = "rgba(34, 201, 95, 0.3)";
+            }
+            else if (point.aktivacija_vrsta < 0) {
+                ctx.fillStyle = "rgba(252, 4, 4, 0.3)";
+            }
+            else {
+                continue;
+            }
+
+            ctx.fillRect(
+                x,
+                chartArea.top,
+                nextX - x,
+                chartArea.bottom - chartArea.top
+            );
+        }
+
+        ctx.restore();
+    }
+};
+
 // ---------------- Load history once ----------------
 
 async function fetchHistory(){
@@ -1363,7 +1206,9 @@ async function fetchHistory(){
 
     historyData = downsampleHistory(parsed)
 
+    
 }
+
 
 // ---------------- Fetch realtime point ----------------
 
@@ -1439,6 +1284,298 @@ function getChartDataCustom(){
     return [...history, ...future]
 
 }
+
+
+//inicijalizacija chartova
+function initCharts(){
+
+    chartConfigs.forEach(cfg => {
+
+        const ctx = document.getElementById(cfg.id).getContext('2d')
+        if(cfg.id == "janitzaChart_3")
+            charts[cfg.id] = new Chart(ctx, {
+
+                type:'line',
+
+                data:{
+                    labels:[],
+                    datasets:[
+                    {
+                        label:cfg.label1,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label2,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label3,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label4,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label5,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    }]
+                },
+
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+
+                    plugins:{
+                        zoom:{
+                            limits:{
+                                x:{ minRange: 10 }
+                            },
+                            pan:{
+                                enabled:true,
+                                mode:'x'
+                            },
+                            zoom:{
+                                wheel:{enabled:true},
+                                pinch:{enabled:true}, 
+                                mode:'x'
+                            }
+                        }
+                    },
+
+                    scales:{
+
+                        x:{
+                            ticks:{color:"#ffffff"},
+                            grid:{color:"#97a9cc"}
+                        },
+
+                        y:{
+                            min:cfg.min,
+                            max:cfg.max,
+                            ticks:{color:"#ffffff"},
+                            grid:{color:"#97a9cc"}
+                        }
+                    }
+                },
+                plugins:[aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
+            })
+        else
+            charts[cfg.id] = new Chart(ctx, {
+
+                type:'line',
+
+                data:{
+                    labels:[],
+                    datasets:[
+                    {
+                        label:cfg.label1,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label2,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    }]
+                },
+
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+
+                    plugins:{
+                        zoom:{
+                            limits:{
+                                x:{ minRange: 10 }
+                            },
+                            pan:{
+                                enabled:true,
+                                mode:'x'
+                            },
+                            zoom:{
+                                wheel:{enabled:true},
+                                pinch:{enabled:true},
+                                mode:'x'
+                            }
+                        }
+                    },
+
+                    scales:{
+
+                        x:{
+                            ticks:{color:"#ffffff"},
+                            grid:{color:"#97a9cc"}
+                        },
+
+                        y:{
+                            min:cfg.min,
+                            max:cfg.max,
+                            ticks:{color:"#ffffff"},
+                            grid:{color:"#97a9cc"}
+                        }
+                    }
+                },
+                plugins: [aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
+            })
+    })
+    chartConfigsCustom.forEach(cfg => {
+
+        const ctx = document.getElementById(cfg.id).getContext('2d')
+
+        charts[cfg.id] = new Chart(ctx, {
+
+            type:'line',
+
+            data:{
+                labels:[],
+                datasets:[
+                {
+                    label:cfg.label1,
+                    data:[],
+                    tension:0.3,
+                    pointRadius:0
+                },
+                {
+                    label:cfg.label2,
+                    data:[],
+                    tension:0.3,
+                    pointRadius:0
+                },
+                {
+                    label:cfg.label3,
+                    data:[],
+                    tension:0.3,
+                    pointRadius:0,
+                    hidden: true
+                },
+                {
+                    label:cfg.label4,
+                    data:[],
+                    tension:0.3,
+                    pointRadius:0
+                },
+                {
+                    label:cfg.label5,
+                    data:[],
+                    tension:0.3,
+                    pointRadius:0
+                }]
+            },
+
+            options:{
+                responsive:true,
+                maintainAspectRatio:false,
+
+                plugins:{
+                    zoom:{
+                        limits:{
+                            x:{ minRange: 10 }
+                        },
+                        pan:{
+                            enabled:true,
+                            mode:'x'
+                        },
+                        zoom:{
+                            wheel:{enabled:true},
+                            pinch:{enabled:true},
+                            mode:'x'
+                        }
+                    }
+                },
+
+                scales:{
+                    
+                    x:{
+                        ticks:{color:"#ffffff"},
+                        grid:{color:"#97a9cc"}
+                    },
+
+                    y:{
+                        min:cfg.min,
+                        max:cfg.max,
+                        ticks:{color:"#ffffff"},
+                        grid:{color:"#97a9cc"}
+                    }
+                }
+            },
+            plugins: [aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
+        })
+
+    })
+}
+
+function updateCharts(){
+
+    const dataset = getChartData()
+
+    const labels = dataset.map(d =>
+        d.time.toLocaleTimeString('hr-HR',{hour12:false})
+    )
+
+    chartConfigs.forEach(cfg => {
+
+        const chart = charts[cfg.id]
+        if(!chart) return
+        
+        chart.$rawData = dataset;
+
+        chart.data.labels = labels
+        chart.data.datasets[0].data = dataset.map(d => d[cfg.y1])
+        chart.data.datasets[1].data = dataset.map(d => d[cfg.y2])
+        
+        if(cfg.id == "janitzaChart_3"){
+            chart.data.datasets[2].data = dataset.map(d => d[cfg.y3])
+            chart.data.datasets[3].data = dataset.map(d => d[cfg.y4])
+            chart.data.datasets[4].data = dataset.map(d => d[cfg.y5])
+        }
+
+        chart.update('none')
+
+    })
+    updateChartsCustom()
+}
+
+function updateChartsCustom(){
+    
+    const dataset = getChartDataCustom()
+
+    const labels = dataset.map(d =>
+        d.time.toLocaleTimeString('hr-HR',{hour12:false})
+    )
+
+    chartConfigsCustom.forEach(cfg => {
+
+        const chart = charts[cfg.id]
+        if(!chart) return
+
+        chart.$rawData = dataset;
+        
+        chart.data.labels = labels       
+        chart.data.datasets[0].data = dataset.map(d => d[cfg.y1] ?? null)
+        chart.data.datasets[1].data = dataset.map(d => d[cfg.y2] ?? null)
+        chart.data.datasets[2].data = dataset.map(d => d[cfg.y3] ?? null)
+        chart.data.datasets[3].data = dataset.map(d => d[cfg.y4] ?? null)
+        chart.data.datasets[4].data = dataset.map(d => d[cfg.y5] ?? null)
+
+        chart.update('none')
+
+    })
+}
+
+
 const radios = document.querySelectorAll('input[name="viewMode"]');
 
 radios.forEach(radio => {

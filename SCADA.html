@@ -65,22 +65,22 @@
                         <span class="scada-main" id="Slika_elektrana">--</span> <span class="scada-main-type"> kW</span> 
                     </div>
                 </div>
-            
-                <div class="soc-progress" aria-hidden="true">
-                    <div class="soc-track">
-                        <div class="soc-fill" id="pvFill"></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%;">
+                    <div class="soc-progress" aria-hidden="true">
+                        <div class="soc-track">
+                            <div class="soc-fill" id="pvFill"></div>
+                        </div>
+                        <div class="soc-labels">
+                            <span>0 kW</span>
+                            <span id="M_max_PV_proizvodnja"></span>
+                        </div>
                     </div>
-                    <div class="soc-labels">
-                        <span>0 kW</span>
-                        <span id="M_max_PV_proizvodnja"></span>
-                    </div>
-                </div>
-
-                <div style="display: ruby;">
-                    <span class="register-label">Procjena proizvodnje: </span>            
-                    <div class="text-right">
-                        <span class="scada-main-type" id="maxPVprocjena">--</span> 
-                        <span class="scada-main-type"> kW</span> 
+                    <div style="display: ruby; padding: 8px 10px 0px 10px;">
+                        <span class="register-label">Procjena proizvodnje: </span>            
+                        <div class="text-right">
+                            <span class="scada-main-type" id="maxPVprocjena">--</span> 
+                            <span class="scada-main-type"> kW</span> 
+                        </div>
                     </div>
                 </div>
             </div>
@@ -103,27 +103,29 @@
                         </div>
                     </div>
                 </div>
-                <div class="soc-progress" aria-hidden="true">
-                    <div class="soc-track">
-                        <div class="soc-fill" id="socFillNew"></div>
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%;">
+                    <div class="soc-progress" aria-hidden="true">
+                        <div class="soc-track">
+                            <div class="soc-fill" id="socFillNew"></div>
+                        </div>
+                        <div class="soc-labels">
+                            <span>0%</span>
+                            <span>100%</span>
+                        </div>
                     </div>
-                    <div class="soc-labels">
-                        <span>0%</span>
-                        <span>100%</span>
+                    
+                    <div style="display: flex; ">
+                        <div class="energy-line" style="gap: 3px;">            
+                            <span class="energy-label">Podešeni SOC: </span>
+                            <span class="register-value energy_label_font scada-main-type" id="SOC_AUTO">--</span>
+                            <span class="scada-main-type"> %</span>
+                        </div>     
+                        <div class="energy-line" style="gap: 3px; padding-left: 0px;">
+                            <span class="energy-label">AI SOC: </span>
+                            <span class="register-value energy_label_font scada-main-type" id="SOC_AUTO_AI">--</span>
+                            <span class="scada-main-type"> %</span>
+                        </div>     
                     </div>
-                </div>
-                
-                <div style="display: flex;">
-                    <div class="energy-line" style="gap: 3px;">            
-                        <span class="energy-label">Podešeni SOC: </span>
-                        <span class="register-value energy_label_font scada-main-type" id="SOC_AUTO">--</span>
-                        <span class="scada-main-type"> %</span>
-                    </div>     
-                    <div class="energy-line" style="gap: 3px; padding-left: 0px;">
-                        <span class="energy-label">AI SOC: </span>
-                        <span class="register-value energy_label_font scada-main-type" id="SOC_AUTO_AI">--</span>
-                        <span class="scada-main-type"> %</span>
-                    </div>     
                 </div>
             </div>
 
@@ -131,13 +133,28 @@
                 <div class="scada-title">Potrošnja</div>
                 <div class="scada-row">
                     <a id="M_url_HEP" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                        <img src="../static/icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row scada-icon--miner">
+                        <img src="../static/icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row">
                     </a>             
                     <div>
                         <span class="scada-main" id="Slika_potrosnja">--</span> 
                         <span class="scada-main-type"> kW</span>
                     </div>
-                </div>        
+                </div>      
+                
+                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%;">
+                    <div class="soc-progress" aria-hidden="true">
+                        <div class="soc-track">
+                            <div class="soc-fill" id="consumptionFill"></div>
+                        </div>
+                        <div class="soc-labels">
+                            <span>0 kW</span>
+                            <span id="M_max_potrosnja"></span>
+                        </div>
+                    </div>  
+                    <div style="display: ruby; padding: 8px 10px 0px 10px;">
+                        <div></div>
+                    </div>
+                </div>
             </div>
 
 
@@ -155,11 +172,20 @@
                     </div>            
                 </div>
                     <br>
+                    <div >
+                        <a href="https://hops.hr/" target="_blank">
+                            <div class="energy-line energy-line--right" style="display: contents;">      
+                                <span class="energy-label">ACE OL: </span>
+                                <span class="register-value energy_label_font scada-main-type" id="ACE_OL">--</span>
+                                <span class="scada-main-type"> MW</span>
+                            </div>     
+                        </a>  
+                    </div> 
                     <div style="display: ruby;" class="scada-sub">
                         <span class="register-label text-right">Baseline: </span> 
                         <span class="scada-main-type" id="Baseline">--</span> 
                         <span class="scada-main-type"> kW</span> 
-                    </div>   
+                    </div>                    
                     <div class="setpoint-row scada-title " style="padding-bottom: 0px; margin-bottom: 0px;">
                         <span class="register-label" style="margin-bottom: 0px;">
                             Aktivacija (setpoint):
@@ -175,92 +201,13 @@
                     Neaktivna
                 </div>
             </div>
-
-            <div class="scada-item">
-                <div class="scada-header">
-                    <div class="scada-title">Agregirana energija</div>
-                    <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
-                        ℹ️
-                    </button>
-                    <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
-                </div>
-
-                <div class="energy-lines">
-                    <div class="energy-line">
-                        <span class="energy-label" style="color: var(--green);" >
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            AFRR
-                        </span>
-                        <span class="energy-value">
-                            <span class="register-value energy_label_font" id="energyPlus">--</span> 
-                            <span class="scada-main-type"> kWh</span></span>
-                    </div>
-
-                    <div class="energy-line">                                                        
-                        <span class="energy-label" style="color: var(--red);" >
-                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                                <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
-                            AFRR
-                        </span>
-                        <span class="energy-value">
-                            <span class="register-value energy_label_font" id="energyMinus">--</span> 
-                            <span class="scada-main-type"> kWh</span> 
-                        </span>
-                    </div>
-                </div>
-                <div class="energy-lines energy-lines--summary">
-                    <div class="energy-line">
-                        <span class="energy-label">SUM</span>
-                        <span class="energy-value">
-                            <span class="register-value energy_label_font" id="energySum">--</span> 
-                            <span class="scada-main-type"> kWh</span> 
-                        </span>
-                    </div>
-                    <div class="energy-line">
-                        <span></span>
-                        <span class="energy-value">
-                            <span class="register-value energy_label_font" id="cijenaSum">--</span> 
-                            <span class="scada-main-type"> €</span> 
-                        </span>                    
-                    </div>
-                </div>
-
-                <div style="display: flex;">
-                    <a href="https://hops.hr/" target="_blank">
-                        <div class="energy-line" style="gap: 6px;">            
-                            <span class="energy-label">ACE OL: </span>
-                            <span class="register-value energy_label_font scada-main-type" id="ACE_OL">--</span>
-                            <span class="scada-main-type"> MW</span>
-                        </div>     
-                    </a>           
-                    <div class="energy-line" style="gap: 6px; width: 50%; padding-left: 0px;">
-                        <span class="energy-label">CROPEX: </span>
-                        <span class="register-value energy_label_font scada-main-type" id="ENTSOE_cijena">--</span>
-                        <span class="scada-main-type"> €/MWh</span>
-                    </div>     
-                </div>
-            </div>   <!-- closes last scada-item -->
-            <div class="scada-item">
+            <div class="scada-item ">
                 <div class="scada-header">
                     <div class="scada-title">Bilanca energije</div>
-                    <button class="date-btn date-btn--icon" onclick="openDataPopup()" type="button" aria-label="Prikaži podatke">
-                        ℹ️
-                    </button>
-                    <button class="date-btn date-btn--icon" onclick="openDateModal()" type="button" aria-label="Odaberi razdoblje">
-                        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                            <path d="M7 3v2M17 3v2M4 9h16M6 5h12a2 2 0 0 1 2 2v13a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2Z" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </button>
+                    <span class="scada-title clickable" id="datumi_ispis" style="text-align: right;" onclick="openDateModal()" ></span>
                 </div>
 
-                <div class="energy-lines">
+                <div class="energy-lines"> 
                     <div class="energy-line energy-line--plus">
                         <span class="energy-label">
                             <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
@@ -311,14 +258,74 @@
                         </span>
                     </div>
                 </div>
-                <div style="display: flex;">
-                    <div class="energy-line" style="width: 50%;"></div>            
-                    <div class="energy-line" style="width: 50%; justify-content: left; gap:3px">
+                <div class="energy-footer">
+                    <div class="energy-line">
+                        <span class="energy-label">CROPEX: </span>
+                        <span class="register-value energy_label_font scada-main-type" id="ENTSOE_cijena">--</span>
+                        <span class="scada-main-type"> €/MWh</span>
+                    </div>
+
+                    <div class="energy-line">
                         <span class="energy-label">UKUPNO: </span>
                         <span class="register-value energy_label_font" id="cijenaUkupno">--</span>
                         <span class="scada-main-type"> €</span>
                     </div>
                 </div>
+            </div>   <!-- closes last scada-item -->
+
+            <div class="scada-item">
+                <div class="scada-header" style="align-items: flex-start;">
+                    <div class="scada-title">Agregirana energija</div>
+                    <div>
+                        <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
+                            ℹ️
+                        </button>
+                    </div>
+                </div>
+
+                <div class="energy-lines">
+                    <div class="energy-line">
+                        <span class="energy-label" style="color: var(--green);" >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M12 5v14M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            AFRR
+                        </span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyPlus">--</span> 
+                            <span class="scada-main-type"> kWh</span></span>
+                    </div>
+
+                    <div class="energy-line">                                                        
+                        <span class="energy-label" style="color: var(--red);" >
+                            <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                                <path d="M5 12h14" stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            AFRR
+                        </span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energyMinus">--</span> 
+                            <span class="scada-main-type"> kWh</span> 
+                        </span>
+                    </div>
+                </div>
+                <div class="energy-lines energy-lines--summary">
+                    <div class="energy-line">
+                        <span class="energy-label">SUM</span>
+                        <span class="energy-value">
+                            <span class="register-value energy_label_font" id="energySum">--</span> 
+                            <span class="scada-main-type"> kWh</span> 
+                        </span>
+                    </div>
+                    <div style="display: flex;">
+                        <div class="energy-line" style="width: 50%;"></div>            
+                        <div class="energy-line" style="width: 50%; justify-content: left; gap:3px">
+                            <span class="energy-label">UKUPNO: </span>
+                            <span class="register-value energy_label_font" id="cijenaSum">--</span>
+                            <span class="scada-main-type"> €</span>
+                        </div>
+                    </div>
+                </div>         
             </div>   <!-- closes last scada-item -->
         </div> <!-- END container1 -->
 
@@ -412,7 +419,7 @@
                 <label class="radio-option">
                     <input type="radio" name="viewMode" value="soc" />
                     <span class="custom-radio" style="min-width: 18px;"></span>
-                    SOC / Optimalni SOC
+                    Razrada SOC-a
                 </label>
                 <label class="radio-option">
                     <input type="radio" name="viewMode" value="baseline" />
@@ -546,7 +553,7 @@
             </div>
         </div>
 
-        <div class="popup_overlay" id="overlay">
+        <div class="popup_overlay" id="overlayAFRR">
             <div class="popup" id="popup">
                 <div class="popup_close-btn" onclick="closePopup()">✕</div>
 
@@ -605,13 +612,7 @@
                         <span class="register-value energy_label_font" id="OIE"></span><span class="scada-main-type"> €/kWh</span> 
                     </div>
                 </div>
-            </div>
-        </div>
-
-        <div class="popup_overlay" id="overlayAFRR">
-            <div class="popup" id="popupAFRR">
-                <div class="popup_close-btn" onclick="closePopup()">✕</div>
-
+                            
                 <div class="popup_header">
                     <h3>PARAMETRI IZRAČUNA CIJENE AGREGACIJE</h3>
                 </div>
@@ -648,6 +649,7 @@
     </div>
   </div>
 </div>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>				
