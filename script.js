@@ -89,6 +89,8 @@ const backend_map ={
     "M_energyBurzeMinusSum":{value:0},
     "M_cijenaBurzeMinus":{value:0},
     "M_cijenaUkupno":{value:0},
+    "M_energijaGasenja":{value:0},
+    "M_cijenaGasenja":{value:0},
     "M_PV_prediction":{value:0},
     "M_CS_prediction":{value:0},
     "M_PASSWORD":{value:null},
@@ -137,6 +139,8 @@ const valueBindings = {
     cijenaBurzePlus: "M_cijenaBurzePlus",
     cijenaBurzeMinus: "M_cijenaBurzeMinus",
     cijenaUkupno: "M_cijenaUkupno",
+    energijaGasenja: "M_energijaGasenja",
+    cijenaGasenja: "M_cijenaGasenja",
 
     maxPVprocjena: "M_OZRACENOST",
     SOC_AUTO: "M_SOC_AUTO_VIZ",
@@ -678,6 +682,10 @@ function sendManualValue() {
             datasets_1[1].backgroundColor = "rgba(34,197,94,0.10)";
         }
 
+        if (datasets_1[2]) {
+            datasets_1[2].borderColor = blue;
+            datasets_1[2].backgroundColor = "rgba(47,107,255,0.10)";
+        }
         const legendLabels_1 = chart_1.options.plugins?.legend?.labels;
         if (legendLabels_1) {
             legendLabels_1.color = muted;
@@ -988,8 +996,10 @@ const chartConfigs = [
     id: "janitzaChart_1",
     y1: "proizvodnja",
     y2: "predikcija_proiz",
+    y3: "insolacija_PV",
     label1: "Proizvodnja",
-    label2: "Predikcija proizvodnje"
+    label2: "Predikcija proizvodnje",
+    label3: "Procjena proizvodnje"
 },
 {
     id: "janitzaChart_2",
@@ -1370,6 +1380,72 @@ function initCharts(){
                 },
                 plugins:[aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
             })
+        else if(cfg.id == "janitzaChart_1")
+            charts[cfg.id] = new Chart(ctx, {
+
+                type:'line',
+
+                data:{
+                    labels:[],
+                    datasets:[
+                    {
+                        label:cfg.label1,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label2,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    },
+                    {
+                        label:cfg.label3,
+                        data:[],
+                        tension:0.3,
+                        pointRadius:0
+                    }]
+                },
+
+                options:{
+                    responsive:true,
+                    maintainAspectRatio:false,
+
+                    plugins:{
+                        zoom:{
+                            limits:{
+                                x:{ minRange: 10 }
+                            },
+                            pan:{
+                                enabled:true,
+                                mode:'x'
+                            },
+                            zoom:{
+                                wheel:{enabled:true},
+                                pinch:{enabled:true}, 
+                                mode:'x'
+                            }
+                        }
+                    },
+
+                    scales:{
+
+                        x:{
+                            ticks:{color:"#ffffff"},
+                            grid:{color:"#97a9cc"}
+                        },
+
+                        y:{
+                            min:cfg.min,
+                            max:cfg.max,
+                            ticks:{color:"#ffffff"},
+                            grid:{color:"#97a9cc"}
+                        }
+                    }
+                },
+                plugins:[doubleTapZoomInPlugin]
+            })
         else
             charts[cfg.id] = new Chart(ctx, {
 
@@ -1536,6 +1612,9 @@ function updateCharts(){
         chart.data.datasets[0].data = dataset.map(d => d[cfg.y1])
         chart.data.datasets[1].data = dataset.map(d => d[cfg.y2])
         
+        if(cfg.id == "janitzaChart_1"){
+            chart.data.datasets[2].data = dataset.map(d => d[cfg.y3])
+        }
         if(cfg.id == "janitzaChart_3"){
             chart.data.datasets[2].data = dataset.map(d => d[cfg.y3])
             chart.data.datasets[3].data = dataset.map(d => d[cfg.y4])
