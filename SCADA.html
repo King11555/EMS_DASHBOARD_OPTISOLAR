@@ -85,7 +85,7 @@
                 </div>
             </div>
             
-            <div class="scada-item">
+            <div id="Baterija_grid" class="scada-item">
                 <a id="M_url_ESS" href="" target="_blank">
                     <div class="scada-title">Baterija</div>
                 </a>
@@ -207,6 +207,11 @@
                     <span class="scada-title clickable" id="datumi_ispis" style="text-align: right;" onclick="openDateModal()" ></span>
                 </div>
 
+                <div>
+                    <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
+                        ℹ️
+                    </button>
+                </div>
                 <div class="energy-lines"> 
                     <div class="energy-line energy-line--plus">
                         <span class="energy-label">
@@ -273,14 +278,9 @@
                 </div>
             </div>   <!-- closes last scada-item -->
 
-            <div class="scada-item">
+            <div id="Agregiranje_grid" class="scada-item">
                 <div class="scada-header" style="align-items: flex-start;">
                     <div class="scada-title">Agregirana energija</div>
-                    <div>
-                        <button class="date-btn date-btn--icon" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
-                            ℹ️
-                        </button>
-                    </div>
                 </div>
 
                 <div class="energy-lines">

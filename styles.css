@@ -1868,3 +1868,8 @@ h1::after {
 .clickable:hover {
   cursor: pointer;
 }
+.readonly-section {
+    opacity: 0.3;
+    background-color: #6e6b6b;
+    pointer-events: none;
+}

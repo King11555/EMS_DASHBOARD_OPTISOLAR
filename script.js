@@ -27,6 +27,7 @@ function glavni_program() {
     updateMainValues();
     updateSpecialValues();
     updateCharts();
+    setReadOnlyGrid();
 }
 
 // ---------------- On page load ----------------
@@ -113,7 +114,9 @@ const backend_map ={
     "M_max_PV_proizvodnja":{value:""},
     "M_max_potrosnja":{value:""},
     "M_ACE_OL":{value:0},
-    "M_VARIJABLE":{value:""}
+    "M_VARIJABLE":{value:""},
+    "M_baterija_postoji_flag":{value:0},
+    "M_vrsta_agregatora":{value:0}
 };
 
 
@@ -1691,3 +1694,18 @@ radios.forEach(radio => {
     });
 });
     
+
+function setReadOnlyGrid() {
+
+    const baterija_flag = backend_map["M_baterija_postoji_flag"].value;
+    const agregator_flag = backend_map["M_vrsta_agregatora"].value;
+    
+    if(baterija_flag == 0){
+        document.getElementById("Baterija_grid").classList.add("readonly-section");
+    }
+
+    if(agregator_flag == 0){
+        document.getElementById("Agregiranje_grid").classList.add("readonly-section");
+    }
+
+}
