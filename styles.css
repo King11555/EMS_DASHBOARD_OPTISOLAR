@@ -1665,6 +1665,14 @@ h1::after {
     display: flex;
     flex-direction: column;
 }
+
+.power-block .value {
+  display: flex;
+  align-items: baseline;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
 .power-block2 {
     display: flex;
     flex-direction: row;      /* same line */
@@ -1672,8 +1680,13 @@ h1::after {
     justify-content: flex-end; /* push to right side */
     gap: 6px;                 /* space between value and kW */
 }
+
 .power-block.right {
     text-align: right;
+}
+
+.power-block.right .value {
+  justify-content: flex-end;
 }
 .on_bottom {
   margin-top: auto;
@@ -1872,4 +1885,133 @@ h1::after {
     opacity: 0.3;
     background-color: #6e6b6b;
     pointer-events: none;
+}
+
+/* Decimal split styling for dynamic values */
+.value-int {
+  font-weight: inherit;
+  color: inherit;
+}
+
+.value-decimal {
+  font-size: 0.66em;
+  opacity: 0.8;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  vertical-align: baseline;
+}
+
+/* Header brand row: logo left, plant name right */
+.hud-brand-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.hud-logo {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+}
+
+.hud-logo img {
+  display: block;
+  height: 30px;
+  width: auto;
+  max-width: min(42vw, 220px);
+  object-fit: contain;
+}
+
+.hud-plant-name {
+  margin: 0;
+  max-width: none;
+  padding-bottom: 0;
+  text-align: right;
+  flex: 1 1 auto;
+}
+
+.hud-plant-name::after {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .hud-brand-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .hud-plant-name {
+    width: 100%;
+    text-align: left;
+  }
+}
+
+@media (max-width: 700px) {
+  .hud-header {
+    margin: -20px -20px 28px;
+    padding: 14px 16px 12px;
+  }
+
+  .hud-header__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .hud-brand-row {
+    margin-bottom: 0;
+    gap: 8px;
+  }
+
+  .hud-logo img {
+    height: 26px;
+    max-width: min(58vw, 220px);
+  }
+
+  .hud-header__row.prvi_podaci,
+  .prvi_podaci {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 14px;
+    padding-top: 12px;
+  }
+
+  .left-side,
+  .right-side,
+  .hud-header__row .left-side,
+  .hud-header__row .right-side {
+    width: 100%;
+    min-width: 0;
+    gap: 8px;
+  }
+
+  .right-side,
+  .hud-header__row .right-side {
+    align-items: stretch;
+  }
+
+  .status-box {
+    width: 100%;
+    padding: 14px 16px;
+  }
+
+  .weather-row {
+    gap: 10px;
+  }
+
+  .mode-toggle {
+    display: flex;
+    width: 100%;
+  }
+
+  .mode-toggle button {
+    flex: 1 1 50%;
+    min-width: 0;
+    justify-content: center;
+    padding: 12px 10px;
+    height: 42px;
+  }
 }

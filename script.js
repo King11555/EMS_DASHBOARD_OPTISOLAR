@@ -182,11 +182,49 @@ const valueBindings = {
 };
 
 const DOM = {};
+const DECIMAL_SPLIT_IDS = new Set(["Slika_elektrana"]);
 
 function cacheDOM() {
     document.querySelectorAll("[id]").forEach(el => {
         DOM[el.id] = el;
     });
+}
+
+function renderSplitDecimalValue(el, value) {
+    const raw = String(value ?? "").trim();
+
+    if (!raw) {
+        el.textContent = "";
+        return;
+    }
+
+    const sepIndex = Math.max(raw.lastIndexOf(","), raw.lastIndexOf("."));
+    const hasDecimalPart =
+        sepIndex > 0 &&
+        sepIndex < raw.length - 1 &&
+        /^\d+$/.test(raw.slice(sepIndex + 1)) &&
+        /\d/.test(raw.slice(0, sepIndex));
+
+    if (!hasDecimalPart) {
+        el.textContent = raw;
+        return;
+    }
+
+    const intPart = raw.slice(0, sepIndex);
+    const decPart = raw.slice(sepIndex);
+
+    el.innerHTML = "";
+
+    const intSpan = document.createElement("span");
+    intSpan.className = "value-int";
+    intSpan.textContent = intPart;
+
+    const decSpan = document.createElement("span");
+    decSpan.className = "value-decimal";
+    decSpan.textContent = decPart;
+
+    el.appendChild(intSpan);
+    el.appendChild(decSpan);
 }
 
 function updateMainValues() {
@@ -196,6 +234,11 @@ function updateMainValues() {
 
         const key = valueBindings[id];
         const value = backend_map[key]?.value ?? "";
+
+        if (DECIMAL_SPLIT_IDS.has(id)) {
+            renderSplitDecimalValue(el, value);
+            continue;
+        }
 
         el.textContent = value;
     }
