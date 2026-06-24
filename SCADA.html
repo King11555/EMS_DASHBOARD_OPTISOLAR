@@ -8,12 +8,17 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-        <link rel="stylesheet" href="../static/styles.css">
+        <link rel="stylesheet" href="styles.css">
     </head>
     <body>
         <header class="hud-header">
             <div class="hud-header__inner">
-                <h1 id="M_naziv_elektrane"></h1>
+                <div class="hud-brand-row">
+                    <div class="hud-logo" aria-label="Optisolar logo">
+                        <img src="slike/logo-dark.png" alt="Optisolar logo">
+                    </div>
+                    <h1 id="M_naziv_elektrane" class="hud-plant-name"></h1>
+                </div>
 
                 <div class="prvi_podaci hud-header__row">
                     <div class="left-side">
@@ -22,7 +27,7 @@
                             <div class="weather-row">
                                 <div class="weather-time"><span id="ntpClock">Učitavanje...</span></div>
                                 <div class="weather-meta">
-                                    <img src="../static/slike/weather.png" alt="Weather Icon" class="weather-icon">
+                                    <img src="slike/weather.png" alt="Weather Icon" class="weather-icon">
                                     <span class= "temperature" id="temperature">Učitavanje...</span><span class= "temperature" > °C</span>
                                 </div>
                             </div>
@@ -59,7 +64,7 @@
                 </a>
                 <div class="scada-row">
                     <a id="M_url_DM_2" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                        <img src="../static/icons/icon-panel-3.png" alt="PV Plant" class="scada-icon scada-icon--row">
+                        <img src="icons/icon-panel-3.png" alt="PV Plant" class="scada-icon scada-icon--row">
                     </a>
                     <div>
                         <span class="scada-main" id="Slika_elektrana">--</span> <span class="scada-main-type"> kW</span> 
@@ -91,7 +96,7 @@
                 </a>
                 <div class="battery-row">            
                     <a id="M_url_ESS_2" href="" target="_blank" >
-                        <img src="../static/icons/icon-battery-2.png" alt="Baterija" class="scada-icon scada-icon--row battery-icon">
+                        <img src="icons/icon-battery-2.png" alt="Baterija" class="scada-icon scada-icon--row battery-icon">
                     </a>
                     <div class="battery-info">
                         <div>
@@ -133,7 +138,7 @@
                 <div class="scada-title">Potrošnja</div>
                 <div class="scada-row">
                     <a id="M_url_HEP" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                        <img src="../static/icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row">
+                        <img src="icons/icon-fan-2.png" alt="Load" class="scada-icon scada-icon--row">
                     </a>             
                     <div>
                         <span class="scada-main" id="Slika_potrosnja">--</span> 
@@ -164,7 +169,7 @@
                 </a>
                 <div class="scada-row">
                     <a id="M_url_HEP_3" href="" target="_blank" style="text-decoration:none; color:inherit;">
-                        <img src="../static/icons/icon-grid-2.png" alt="Transformer" class="scada-icon scada-icon--row">
+                        <img src="icons/icon-grid-2.png" alt="Transformer" class="scada-icon scada-icon--row">
                     </a>                      
                     <div>
                         <span class="scada-main" id="Slika_Janitza">--</span> 
@@ -206,7 +211,7 @@
                     <div class="scada-title">Bilanca energije</div>
                     <span class="scada-title clickable" id="datumi_ispis" style="text-align: right;" onclick="openDateModal()"></span>
                     <button class="date-btn date-btn--icon"  style="min-width: 30px;" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
-                        ℹ️
+                        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" aria-hidden="true" focusable="false"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 17.75C12.4142 17.75 12.75 17.4142 12.75 17V11C12.75 10.5858 12.4142 10.25 12 10.25C11.5858 10.25 11.25 10.5858 11.25 11V17C11.25 17.4142 11.5858 17.75 12 17.75Z" fill="#ffffff"></path> <path d="M12 7C12.5523 7 13 7.44772 13 8C13 8.55228 12.5523 9 12 9C11.4477 9 11 8.55228 11 8C11 7.44772 11.4477 7 12 7Z" fill="#ffffff"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C17.9371 1.25 22.75 6.06294 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12ZM12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75Z" fill="#ffffff"></path> </g></svg>
                     </button>
                 </div>
                 <div class="energy-lines"> 
@@ -349,14 +354,14 @@
 
             <div class="register-card">
                 <div class="power-row">
-                    <div class="power-block right">
+                    <div class="power-block">
                         <div class="register-label">ΔP - potrošnja</div>
                         <div class="value">
                             <span id="M_DELTA_NEG_FLEX" class="register-value">0</span> 
                             <span class="scada-main-type"> kW</span>
                         </div>
                     </div>
-                    <div class="power-block">
+                    <div class="power-block right">
                         <div class="register-label">ΔP - proizvodnja</div>
                         <div class="value">
                             <span id="M_DELTA_POS_FLEX" class="register-value">0</span> 
@@ -680,7 +685,7 @@
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>				
     <script src="https://npmcdn.com/flatpickr/dist/l10n/hr.js"></script>																				  
-    <script src="../static/script.js"></script>
+    <script src="script.js"></script>
 
     </body>
 </html>
