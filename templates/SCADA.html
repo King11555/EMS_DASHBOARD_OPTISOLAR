@@ -1,4 +1,3 @@
-@ -1,691 +0,0 @@
 <!DOCTYPE html>
 <html lang="hr">
     <head>
@@ -16,7 +15,7 @@
             <div class="hud-header__inner">
                 <div class="hud-brand-row">
                     <div class="hud-logo" aria-label="Optisolar logo">
-                        <img src="slike/logo-dark.png" alt="Optisolar logo">
+                        <img src="../static/slike/logo-dark.png" alt="Optisolar logo">
                     </div>
                     <h1 id="M_naziv_elektrane" class="hud-plant-name"></h1>
                 </div>
@@ -81,12 +80,14 @@
                             <span id="M_max_PV_proizvodnja"></span>
                         </div>
                     </div>
-                    <div style="display: ruby; padding: 8px 10px 0px 10px;">
-                        <span class="register-label">Procjena proizvodnje: </span>            
-                        <div class="text-right">
-                            <span class="scada-main-type" id="maxPVprocjena">--</span> 
-                            <span class="scada-main-type"> kW</span> 
-                        </div>
+
+                    <div style="display: flex; ">
+                        <div class="energy-line" style="gap: 3px; padding-left: 0px;">            
+                            <span class="energy-label">PROCJENA PROIZVODNJE: </span>
+												
+                            <span class="register-value energy_label_font scada-main-type" id="maxPVprocjena">--</span>
+                            <span class="scada-main-type"> kW</span>
+                        </div>       
                     </div>
                 </div>
             </div>
@@ -146,8 +147,7 @@
                         <span class="scada-main-type"> kW</span>
                     </div>
                 </div>      
-                
-                <div style="display:flex; flex-direction:column; justify-content:flex-end; height:100%;">
+                <div>
                     <div class="soc-progress" aria-hidden="true">
                         <div class="soc-track">
                             <div class="soc-fill" id="consumptionFill"></div>
@@ -157,9 +157,6 @@
                             <span id="M_max_potrosnja"></span>
                         </div>
                     </div>  
-                    <div style="display: ruby; padding: 8px 10px 0px 10px;">
-                        <div></div>
-                    </div>
                 </div>
             </div>
 
@@ -187,29 +184,31 @@
                             </div>     
                         </a>  
                     </div> 
-                    <div style="display: ruby;" class="scada-sub">
-                        <span class="register-label text-right">Baseline: </span> 
-                        <span class="scada-main-type" id="Baseline">--</span> 
-                        <span class="scada-main-type"> kW</span> 
-                    </div>                    
+                    <div style="display: flex; ">
+                        <div class="energy-line" style="gap: 5px; padding: 0px 0px 0px 0px;">            
+                            <span class="energy-label">BASELINE: </span>
+                            <span class="register-value energy_label_font scada-main-type" id="Baseline">--</span>
+                            <span class="scada-main-type"> kW</span>
+                        </div>       
+                    </div>                  
                     <div class="setpoint-row scada-title " style="padding-bottom: 0px; margin-bottom: 0px;">
                         <span class="register-label" style="margin-bottom: 0px;">
                             Aktivacija (setpoint):
                         </span>
                         
                         <div class="text-right" style="padding-bottom: 6px;">
-                            <span class="scada-main" id="ENNA_setpoint_scada">--</span>
+                            <span class="scada-main" id="setpoint_scada">--</span>
                             <span class="scada-main-type"> kW</span> 
                         </div>
                     </div>
                     
-                <div id="ENNA_ackt_viz" class="status-window on_bottom" role="status" aria-live="polite" data-state="unknown">
+                <div id="act_viz" class="status-window on_bottom" role="status" aria-live="polite" data-state="unknown">
                     Neaktivna
                 </div>
             </div>
             <div class="scada-item ">
                 <div class="scada-header">
-                    <div class="scada-title">Bilanca energije</div>
+                    <div class="scada-title" style="min-width: 140px ">Bilanca energije</div>
                     <span class="scada-title clickable" id="datumi_ispis" style="text-align: right;" onclick="openDateModal()"></span>
                     <button class="date-btn date-btn--icon"  style="min-width: 30px;" onclick="openDataPopupAFRR()" type="button" aria-label="Prikaži podatke">
                         <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#ffffff" aria-hidden="true" focusable="false"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"> <path d="M12 17.75C12.4142 17.75 12.75 17.4142 12.75 17V11C12.75 10.5858 12.4142 10.25 12 10.25C11.5858 10.25 11.25 10.5858 11.25 11V17C11.25 17.4142 11.5858 17.75 12 17.75Z" fill="#ffffff"></path> <path d="M12 7C12.5523 7 13 7.44772 13 8C13 8.55228 12.5523 9 12 9C11.4477 9 11 8.55228 11 8C11 7.44772 11.4477 7 12 7Z" fill="#ffffff"></path> <path fill-rule="evenodd" clip-rule="evenodd" d="M1.25 12C1.25 6.06294 6.06294 1.25 12 1.25C17.9371 1.25 22.75 6.06294 22.75 12C22.75 17.9371 17.9371 22.75 12 22.75C6.06294 22.75 1.25 17.9371 1.25 12ZM12 2.75C6.89137 2.75 2.75 6.89137 2.75 12C2.75 17.1086 6.89137 21.25 12 21.25C17.1086 21.25 21.25 17.1086 21.25 12C21.25 6.89137 17.1086 2.75 12 2.75Z" fill="#ffffff"></path> </g></svg>
@@ -281,7 +280,7 @@
                 </div>
             </div>   <!-- closes last scada-item -->
 
-            <div id="Agregiranje_grid" class="scada-item">
+            <div class="scada-item">
                 <div class="scada-header" style="align-items: flex-start;">
                     <div class="scada-title">Agregirana energija</div>
                 </div>
@@ -504,16 +503,16 @@
 
                 <div id="manualInputContainer" class="form-grid">
                 
-                    <label for="ENNA_ACKT_RUCNO" class="form-label">Ručna aktivacija:
+                    <label for="ACT_rucno" class="form-label">Ručna aktivacija:
                         <span class="form-hint">OPCIJE: <br>0: AUTO način rada <br> 1: Prati se setpoint od agregatora i šalje ACKN flag (poluručno)<br> 2: Prati se ručni setpoint i ne šalje se ACKN flag (ručno)</span>
                     </label>
                     <div class="form-field">
-                        <input type="number" id="ENNA_ACKT_RUCNO" placeholder="Unesite vrijednost">
+                        <input type="number" id="ACT_rucno" placeholder="Unesite vrijednost">
                     </div>
 
-                    <label for="ENNA_RUCNO" class="form-label">Ručni unos setpointa aktivacije:</label>
+                    <label for="ACT_podesena_snaga_rucno" class="form-label">Ručni unos setpointa aktivacije:</label>
                     <div class="form-field">
-                        <input type="number" id="ENNA_RUCNO" placeholder="Unesite vrijednost">
+                        <input type="number" id="ACT_podesena_snaga_rucno" placeholder="Unesite vrijednost">
                     </div>
 
                     <label for="SOC-bat-auto" class="form-label"> Postavka SOC %:

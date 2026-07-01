@@ -11,8 +11,8 @@ let endPicker;
 let today 
 let firstDay 
 
-let ENNA_RUCNO = 0;
-let ENNA_ACKT_RUCNO = 0;
+let ACT_podesena_snaga_rucno = 0;
+let ACT_rucno = 0;
 let SOC_BAT_AUTO = -1;
 
 let writeRegistersList = []
@@ -63,10 +63,10 @@ const backend_map ={
     "M_Baterija_SOC": {value: 0},
     "M_Baterija_snaga": {value: 0},
     "M_Baterija_postotak": {value: 0},
-    "M_ENNA_podesena_snaga": {value: 0},
+    "M_ACT_podesena_snaga": {value: 0},
     "M_ABS_POS_FLEX": {value: 0},
     "M_ABS_NEG_FLEX": {value: 0},
-    "M_ENNA_ACKT": {value:0},
+    "M_ACT_flag_read": {value:0},
     "M_DELTA_POS_FLEX": {value:0},
     "M_DELTA_NEG_FLEX": {value:0},
 	"M_HEP_podeseno": {value:0},
@@ -125,6 +125,8 @@ const valueBindings = {
     Slika_Janitza: "M_EnergyMeter",
     Slika_potrosnja: "M_Potrosnja_VIZ",
     Slika_baterija_snaga: "M_Baterija_snaga",
+    setpoint_scada: "M_ACT_podesena_snaga",
+
 
     Baseline: "M_Baseline",
     energyPlus: "M_energyPlus",
@@ -182,7 +184,20 @@ const valueBindings = {
 };
 
 const DOM = {};
-const DECIMAL_SPLIT_IDS = new Set(["Slika_elektrana"]);
+
+const DECIMAL_SPLIT_IDS = new Set(["Slika_elektrana",
+                                    "Slika_baterija_snaga",
+                                    "Slika_potrosnja",
+                                    "Slika_Janitza",
+                                    "setpoint_scada",
+                                    "M_ABS_NEG_FLEX",
+                                    "M_ABS_POS_FLEX",
+                                    "M_DELTA_NEG_FLEX",
+                                    "M_DELTA_POS_FLEX",
+                                    "M_PV_postotak",
+                                    "M_Baterija_postotak",
+                                    "M_HEP_podeseno"
+                                    ]);							   
 
 function cacheDOM() {
     document.querySelectorAll("[id]").forEach(el => {
@@ -226,7 +241,6 @@ function renderSplitDecimalValue(el, value) {
     el.appendChild(intSpan);
     el.appendChild(decSpan);
 }
-
 function updateMainValues() {
     for (const id in valueBindings) {
         const el = DOM[id];
@@ -234,7 +248,6 @@ function updateMainValues() {
 
         const key = valueBindings[id];
         const value = backend_map[key]?.value ?? "";
-
         if (DECIMAL_SPLIT_IDS.has(id)) {
             renderSplitDecimalValue(el, value);
             continue;
@@ -246,19 +259,19 @@ function updateMainValues() {
 
 function updateSpecialValues() {
 
-    // --- ENNA STATUS ---
-    const ackt = backend_map["M_ENNA_ACKT"].value;
+    // --- ACT STATUS ---
+    const ackt = backend_map["M_ACT_flag_read"].value;
 
-    if (DOM.ENNA_ackt_viz) {
-        DOM.ENNA_ackt_viz.textContent =
+    if (DOM.act_viz) {
+        DOM.act_viz.textContent =
             ackt == 1 ? "Aktivna" : "Neaktivna";
     }
 
-    // --- ENNA SETPOINT ---
-    if (DOM.ENNA_setpoint_scada) {
-        DOM.ENNA_setpoint_scada.textContent =
-            backend_map["M_ENNA_podesena_snaga"].value;
-    }
+    //     // --- ENNA SETPOINT ---
+    // if (DOM.setpoint_scada) {
+    //     DOM.setpoint_scada.textContent =
+    //         backend_map["M_ACT_podesena_snaga"].value;
+    // }
 
     // --- LINKOVI ---
     const links = [
@@ -324,8 +337,8 @@ function fetchAndUpdateValues() {
 
 function SendAndUpdateValues() {    
  const dataToSend = {
-        M_ENNA_podesena_snaga_rucno: ENNA_RUCNO,
-        M_ENNA_ACKT_rucno: ENNA_ACKT_RUCNO,
+        M_ACT_podesena_snaga_rucno: ACT_podesena_snaga_rucno,
+        M_ACT_rucno: ACT_rucno,
         M_SOC_AUTO: SOC_BAT_AUTO // optional if you want SOC manual value too
     };
 
@@ -453,8 +466,8 @@ function loadAutoCurrentValues() {   //napuni prozore s trenutnim vrijednostima 
         .then(res => res.json())
         .then(data => {
             // Fill each input with current backend value
-            document.getElementById("ENNA_RUCNO").value = data["M_ENNA_podesena_snaga_rucno"]?.value ?? "";
-            document.getElementById("ENNA_ACKT_RUCNO").value = data["M_ENNA_ACKT_rucno"]?.value ?? "";
+            document.getElementById("ACT_podesena_snaga_rucno").value = data["M_ACT_podesena_snaga_rucno"]?.value ?? "";
+            document.getElementById("ACT_rucno").value = data["M_ACT_rucno"]?.value ?? "";
             document.getElementById("SOC-bat-auto").value = data["M_SOC_AUTO"]?.value ?? "";
         })
         .catch(err => {
@@ -547,10 +560,10 @@ function updateModeButtons(zastavica) {
 
 
 function sendManualValue() {
-    ENNA_RUCNO = document.getElementById('ENNA_RUCNO').value;
-    ENNA_ACKT_RUCNO = document.getElementById('ENNA_ACKT_RUCNO').value;
+    ACT_podesena_snaga_rucno = document.getElementById('ACT_podesena_snaga_rucno').value;
+    ACT_rucno = document.getElementById('ACT_rucno').value;
     SOC_BAT_AUTO = document.getElementById('SOC-bat-auto').value;
-    if((ENNA_RUCNO == "")&&(ENNA_ACKT_RUCNO == "")&&(SOC_BAT_AUTO=="")){
+    if((ACT_podesena_snaga_rucno == "")&&(ACT_rucno == "")&&(SOC_BAT_AUTO=="")){
         alert("Molimo unesite vrijednost!");
         return;
         }
@@ -632,13 +645,13 @@ function sendManualValue() {
     }
 
     function applyActivationState() {
-        const el = document.getElementById("ENNA_ackt_viz");
+        const el = document.getElementById("act_viz");
         if (!el) return;
         el.dataset.state = getActivationStateFromText(el.textContent);
     }
 
     function observeActivationStatus() {
-        const el = document.getElementById("ENNA_ackt_viz");
+        const el = document.getElementById("act_viz");
         if (!el) return;
         applyActivationState();
         const obs = new MutationObserver(() => applyActivationState());
