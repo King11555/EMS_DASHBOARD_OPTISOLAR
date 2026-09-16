@@ -808,6 +808,25 @@ button:hover {
     white-space: nowrap;
 }
 
+@media (max-width: 600px) {
+  .energy-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .energy-footer .energy-line {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+
+  .energy-footer .energy-line:last-child {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
 /* Aggregated energy total: keep the UKUPNO group on the right side. */
 .energy-line--total {
   justify-content: flex-end;
