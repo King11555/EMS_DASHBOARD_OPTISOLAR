@@ -245,7 +245,22 @@ button:hover {
 }
 
 @media (max-width: 600px) {
-  .container1 { grid-template-columns: 1fr; }
+  .container1 {
+    grid-template-columns: 1fr;
+  }
+
+  .container1 > a,
+  .container1 > div,
+  .scada-item {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .scada-item {
+    overflow: hidden;
+  }
+
   .status-box { width: 100%; }
 }
 
@@ -350,6 +365,7 @@ button:hover {
   letter-spacing: 0.2px;
   color: var(--text);
   line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
 .scada-main--right {
@@ -371,6 +387,29 @@ button:hover {
 
 .scada-row .scada-sub {
   text-align: right;
+}
+
+@media (max-width: 600px) {
+  .scada-row > *,
+  .battery-row > * {
+    min-width: 0;
+  }
+
+  .scada-row > :last-child,
+  .battery-row > :last-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .scada-row .scada-main,
+  .battery-row .scada-main {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    margin-left: auto;
+    white-space: nowrap;
+  }
 }
 
 .scada-row--stack {
@@ -1889,16 +1928,39 @@ h1::after {
 
 /* Decimal split styling for dynamic values */
 .value-int {
+  display: inline-block;
   font-weight: inherit;
   color: inherit;
+  font-variant-numeric: tabular-nums;
 }
 
 .value-decimal {
+  display: inline-block;
   font-size: 0.66em;
   opacity: 0.8;
   font-weight: 600;
   letter-spacing: 0.01em;
   vertical-align: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .value-int,
+  .value-decimal {
+    align-self: auto;
+  }
+
+  .value-int {
+    min-width: 4ch;
+    text-align: right;
+  }
+
+  .value-decimal {
+    min-width: 3ch;
+    line-height: 1;
+    text-align: left;
+    transform: translateY(1px);
+  }
 }
 
 /* Header brand row: logo left, plant name right */
