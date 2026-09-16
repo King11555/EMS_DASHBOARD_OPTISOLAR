@@ -808,6 +808,11 @@ button:hover {
     white-space: nowrap;
 }
 
+/* Aggregated energy total: keep the UKUPNO group on the right side. */
+.energy-line--total {
+  justify-content: flex-end;
+}
+
 /* Registers section */
 .registers-grid {
   max-width: 1100px;
