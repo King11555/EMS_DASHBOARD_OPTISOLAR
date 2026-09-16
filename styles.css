@@ -583,9 +583,19 @@ button:hover {
 }
 
 .status-window::before {
-  content: "⏻";
-  font-size: 16px;
-  line-height: 1;
+  display: none;
+}
+
+.status-window__icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
   opacity: 0.9;
 }
 
@@ -593,7 +603,7 @@ button:hover {
   border-color: rgba(34, 197, 94, 0.35);
 }
 
-.status-window[data-state="active"]::before {
+.status-window[data-state="active"] .status-window__icon {
   color: var(--green);
   opacity: 1;
 }
@@ -602,14 +612,9 @@ button:hover {
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-.status-window[data-state="inactive"]::before {
+.status-window[data-state="inactive"] .status-window__icon {
   color: var(--red);
   opacity: 0.95;
-}
-
-.status-window[data-state="unknown"]::before {
-  color: var(--muted);
-  opacity: 0.8;
 }
 
 /* Inline details list (previously hover-only). */

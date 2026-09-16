@@ -250,8 +250,13 @@ function updateSpecialValues() {
     const ackt = backend_map["M_ENNA_ACKT"].value;
 
     if (DOM.ENNA_ackt_viz) {
-        DOM.ENNA_ackt_viz.textContent =
-            ackt == 1 ? "Aktivna" : "Neaktivna";
+        const statusText = DOM.ENNA_ackt_viz.querySelector(".status-window__text");
+        const statusValue = ackt == 1 ? "Aktivna" : "Neaktivna";
+        if (statusText) {
+            statusText.textContent = statusValue;
+        } else {
+            DOM.ENNA_ackt_viz.textContent = statusValue;
+        }
     }
 
     // --- ENNA SETPOINT ---
