@@ -3,7 +3,14 @@
 
 let historyData = []
 let realtimeData = []
-let predictionData = []
+// let predictionData = []
+
+// Sirovi zapisi povijesti (zadnjih 12 h, isti prozor koji drzi i server). Cuvaju se da se
+// povijest moze dopunjavati novim tockama umjesto da se svaki put povlaci cijela.
+let historyRaw = []
+let historySince = null
+let historySinceBaseline = null
+let dohvatPovijestiUTijeku = false
 
 let lastMode = null;
 let startPicker;
@@ -18,12 +25,38 @@ let SOC_BAT_AUTO = -1;
 let writeRegistersList = []
 let charts = {}
 
+// Redni broj zadnjeg stanja mape registara koje ova stranica ima. Salje se serveru uz
+// svaki zahtjev, pa on vraca samo vrijednosti promijenjene nakon tog stanja.
+// 0 znaci "posalji sve" - kod prvog ucitavanja i nakon prekida veze.
+let frontendSeq = 0;
+
+// Predikcija se na serveru mijenja tek kad stigne novi baseline s CLAB-a, dakle svakih
+// 15 minuta, a odgovor je i preko 10 kB. Nema smisla vuci ju svake sekunde.
+const PREDIKCIJA_INTERVAL_MS = 60000;
+let zadnjaPredikcija = 0;
+
+// Povijest se dopunjuje svake minute. Graf realtime dio crta iz zadnjih 5 minuta
+// (realtimeData), a sve starije iz povijesti - zato povijest ne smije zaostajati vise od
+// tih 5 minuta, inace bi se izmedu ta dva dijela otvorila rupa.
+const POVIJEST_INTERVAL_MS = 60000;
+let zadnjaPovijest = 0;
+
 // ---------------- Hook into glavni_program ----------------
 function glavni_program() {
     updateLocalClock();
     fetchAndUpdateValues();
     fetchRealtimePoint();
-    fetchPrediction();
+
+    //if (Date.now() - zadnjaPredikcija >= PREDIKCIJA_INTERVAL_MS) {
+    //    zadnjaPredikcija = Date.now();
+    //    fetchPrediction();
+    //}
+
+    if (Date.now() - zadnjaPovijest >= POVIJEST_INTERVAL_MS) {
+        zadnjaPovijest = Date.now();
+        fetchHistory();
+    }
+
     updateMainValues();
     updateSpecialValues();
     updateCharts();
@@ -44,12 +77,9 @@ window.onload = function() {
 // Run main program every second
 setInterval(glavni_program, 1000);
 
-function reloadPage() {  
-    window.location.reload();
-}
-
-// Run main program every second
-setInterval(reloadPage, 300000);
+// Ponovno ucitavanje cijele stranice svakih 5 minuta je maknuto: uz script.js, styles.css,
+// ikone i biblioteke s CDN-a povlacilo je i cijelu povijest grafa (nekoliko MB). Jedino sto
+// je time stvarno osvjezavalo - povijest - sada se dopunjuje u glavni_program, bez reloada.
 
 
 //kompletna mapa s backenda na frontend
@@ -94,7 +124,6 @@ const backend_map ={
     "M_cijenaGasenja":{value:0},
     "M_PV_prediction":{value:0},
     "M_CS_prediction":{value:0},
-    "M_PASSWORD":{value:null},
     "M_ENTSOE_cijena":{value:0},
     "M_Vrsta_prodaje":{value:0},
     "M_Koeficijent_prodaje":{value:0},
@@ -116,7 +145,10 @@ const backend_map ={
     "M_ACE_OL":{value:0},
     "M_VARIJABLE":{value:""},
     "M_baterija_postoji_flag":{value:0},
-    "M_vrsta_agregatora":{value:0}
+    "M_vrsta_agregatora":{value:0},
+    "M_info_arbitraza":{value:0},
+    "M_upravljiva_potrosnja_postoji_flag":{value:0},
+    "M_Mineri_rade": {value:0}
 };
 
 
@@ -161,6 +193,7 @@ const valueBindings = {
 
     M_HEP_podeseno: "M_HEP_podeseno",
     M_naziv_elektrane: "M_naziv_elektrane",
+    M_naziv_elektrane_title: "M_naziv_elektrane",
     M_lokacija: "M_lokacija",
     M_max_PV_proizvodnja: "M_max_PV_proizvodnja",
     M_max_potrosnja: "M_max_potrosnja",
@@ -266,12 +299,10 @@ function updateSpecialValues() {
         DOM.act_viz.textContent =
             ackt == 1 ? "Aktivna" : "Neaktivna";
     }
-
-    //     // --- ENNA SETPOINT ---
-    // if (DOM.setpoint_scada) {
-    //     DOM.setpoint_scada.textContent =
-    //         backend_map["M_ACT_podesena_snaga"].value;
-    // }
+    
+    if (DOM.infoArbitraza) {
+        DOM.infoArbitraza.innerHTML = backend_map["M_info_arbitraza"].value;
+    }
 
     // --- LINKOVI ---
     const links = [
@@ -286,6 +317,16 @@ function updateSpecialValues() {
             if (DOM[id]) DOM[id].href = url;
         });
     });
+  
+    const Mineri = backend_map["M_Mineri_rade"].value;    
+    const Mineri_status = document.getElementById("Slika_mineri");    
+    if(Mineri==1){
+        Mineri_status.textContent = "U radu";
+        Mineri_status.style.color = "#00ff99";
+    }else{ 
+        Mineri_status.textContent = "Pauzirano";
+        Mineri_status.style.color = "orange";   
+    }
 }
 
 function updateColor(element) {
@@ -310,17 +351,32 @@ function updateColor(element) {
 //...............Dohvat podataka s backenda........................
 
 function fetchAndUpdateValues() {
-    fetch('/Frontend_primi_podatke', { cache: "no-store" })
+    fetch('/Frontend_primi_podatke?since=' + frontendSeq, { cache: "no-store" })
         .then(res => res.json())
         .then(data => {
-            // Update backend mape
-            for (const key in data) {
-                if (backend_map[key] && data[key] && typeof data[key].value !== "undefined") {
-                    backend_map[key].value = data[key].value;
+            if (!data || typeof data.seq === "undefined") return;
+
+            // Puna mapa (prvo ucitavanje ili restart servera) uvijek postavlja redni broj,
+            // inace se on samo povecava - odgovori mogu stici izvan redoslijeda.
+            if (data.full || data.seq > frontendSeq) {
+                frontendSeq = data.seq;
+            }
+
+            // Server salje samo promijenjene kljuceve; ostali u backend_map ostaju kakvi jesu.
+            const values = data.values || {};
+
+            for (const key in values) {
+                if (backend_map[key] && values[key] && typeof values[key].value !== "undefined") {
+                    backend_map[key].value = values[key].value;
                 }
             }           
         })
-        .catch(err => console.error("Error fetching values:", err));
+        .catch(err => {
+            // Nakon prekida veze trazi se puno stanje, da se ne propusti promjena
+            // koja se dogodila dok zahtjevi nisu prolazili.
+            frontendSeq = 0;
+            console.error("Error fetching values:", err);
+        });
 
     fetch('/get_mode', {cache: "no-store"})
         .then(res => res.json())
@@ -495,18 +551,57 @@ function loadManualCurrentValues() {   //napuni prozore s trenutnim vrijednostim
 
 
 //...............Postavljanje načina rada........................
+// Trazi lozinku i salje ju serveru na provjeru.
+// Lozinka se NE nalazi u pregledniku - jedino ju server zna.
+// Ako sesija od ranije jos traje (session cookie), lozinka se ne trazi ponovno.
+// Vraca true ako je prijava uspjela.
+async function prijaviSe() {
+
+    // Prvo provjera postojece sesije - server javlja vrijedi li kolacic.
+    try {
+        const status = await fetch("/status_prijave", {
+            cache: "no-store",
+            credentials: "same-origin"
+        });
+
+        if (status.ok) {
+            const podaci = await status.json();
+            if (podaci.prijavljen) return true;
+        }
+    } catch (e) {
+        // Nema veze sa serverom - nastavljamo na upis lozinke.
+    }
+
+    const upisana = await askPassword();
+    if (upisana === null) return false;          // korisnik je odustao
+
+    try {
+        const odgovor = await fetch("/provjeri_lozinku", {
+            method: "POST",
+            headers: {"Content-Type": "application/json"},
+            credentials: "same-origin",
+            body: JSON.stringify({ lozinka: upisana })
+        });
+
+        if (odgovor.ok) return true;
+
+        alert("Pogrešna lozinka.");
+        return false;
+
+    } catch (e) {
+        alert("Greška pri provjeri lozinke - nema veze sa serverom.");
+        return false;
+    }
+}
+
+//...............Postavljanje načina rada........................
 async function setMode(newMode) {
-    const correctPassword = backend_map["M_PASSWORD"].value;
     let modeValue = 1;
 
     if (newMode === 'ručni') {
         if (!confirm("UPOZORENJE:\n\nBudite oprezni kod ručnog upisa podataka!\nNeopreznim direktnim upisivanjem u registre sunčane elektrane i baterija, može se premašiti maksimalna dozvoljena izlazna snaga, što može rezultatirati proradom strujnih zaštita i izbacivanjem cijelog postrojenja iz mreže.\n\nŽelite li nastaviti?")) return;
 
-        const enteredPassword = await askPassword();
-        if (enteredPassword !== correctPassword) {
-            alert("Pogrešna lozinka.");
-            return;
-        }
+        if (!await prijaviSe()) return;
 
         openModal('manualInputModal');
         loadManualCurrentValues();  // pre-fill the fields immediately
@@ -515,11 +610,7 @@ async function setMode(newMode) {
     } else if (newMode === 'automatski') {
         if (!confirm("UPOZORENJE:\n\nAutomatski način rada - daljinsko upravljanje postrojenjem pomoću sustava aktivacije\n\n\nŽelite li nastaviti?")) return;
 
-        const enteredPassword = await askPassword();
-        if (enteredPassword !== correctPassword) {
-            alert("Pogrešna lozinka.");
-            return;
-        }
+        if (!await prijaviSe()) return;
 
         openModal('AutoInputModal');
         loadAutoCurrentValues();
@@ -570,6 +661,25 @@ function sendManualValue() {
     SendAndUpdateValues();       
 }
 
+
+//Funkcije za MINERE
+async function mineriPauseResume(akcija) {
+
+    try {
+        const response = await fetch('/miner_pause_resume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ radnja: akcija })
+        });
+        response_tekst = await response.json()
+        console.log(response_tekst);    
+        showAutoInputMessage(response_tekst["message"], true);
+    } catch (error) {
+        resultBox.innerText = "❌ Error sending request.";
+        showAutoInputMessage("❌ Error sending request.", false);
+        console.error(error);
+    }
+}
 (function () {
     function clamp(value, min, max) {
         return Math.min(max, Math.max(min, value));
@@ -697,12 +807,13 @@ function sendManualValue() {
     const chart_1 = charts["janitzaChart_1"];
     const chart_2 = charts["janitzaChart_2"];
     const chart_3 = charts["janitzaChart_3"];
-    const chart_4 = charts["janitzaChart_4"];
+    // const chart_4 = charts["janitzaChart_4"];
         if (!chart || !chart.options 
             || !chart_1 || !chart_1.options
             || !chart_2 || !chart_2.options
             || !chart_3 || !chart_3.options
-            || !chart_4 || !chart_4.options) return;
+            // || !chart_4 || !chart_4.options
+        ) return;
 
         const root = getComputedStyle(document.documentElement);
         const muted = root.getPropertyValue("--muted").trim() || "#A7B0C2";
@@ -722,6 +833,10 @@ function sendManualValue() {
         if (datasets[1]) {
             datasets[1].borderColor = green;
             datasets[1].backgroundColor = "rgba(34,197,94,0.10)";
+        }
+        if (datasets[2]) {
+            datasets[2].borderColor = orange;
+            datasets[2].backgroundColor = "rgba(245,158,11,0.10)";
         }
         const legendLabels = chart.options.plugins?.legend?.labels;
         if (legendLabels) {
@@ -802,35 +917,35 @@ function sendManualValue() {
 
         chart_3.update("none");
 
-        const datasets_4 = chart_4.data?.datasets || [];
+        // const datasets_4 = chart_4.data?.datasets || [];
                 
-        if (datasets_4[0]) {
-            datasets_4[0].borderColor = green;
-            datasets_4[0].backgroundColor = "rgba(34,197,94,0.10)";
-        }
-        if (datasets_4[1]) {
-            datasets_4[1].borderColor = blue;
-            datasets_4[1].backgroundColor = "rgba(47,107,255,0.10)";
-        }
-        if (datasets_4[2]) {
-            datasets_4[2].borderColor = red;
-            datasets_4[2].backgroundColor = "rgba(239,20,20,0.10)";
-        }
-        if (datasets_4[3]) {
-            datasets_4[3].borderColor = orange;
-            datasets_4[3].backgroundColor = "rgba(245,158,11,0.10)";
-        }
-        if (datasets_4[4]) {
-            datasets_4[4].borderColor = magenta;
-            datasets_4[4].backgroundColor = "rgba(255,128,255,0.10)";
-        }
-        const legendLabels_4 = chart_4.options.plugins?.legend?.labels;
-        if (legendLabels_4) {
-            legendLabels_4.color = muted;
-            legendLabels_4.font = { size: 12, weight: "600" };
-        }
+        // if (datasets_4[0]) {
+        //     datasets_4[0].borderColor = green;
+        //     datasets_4[0].backgroundColor = "rgba(34,197,94,0.10)";
+        // }
+        // if (datasets_4[1]) {
+        //     datasets_4[1].borderColor = blue;
+        //     datasets_4[1].backgroundColor = "rgba(47,107,255,0.10)";
+        // }
+        // if (datasets_4[2]) {
+        //     datasets_4[2].borderColor = red;
+        //     datasets_4[2].backgroundColor = "rgba(239,20,20,0.10)";
+        // }
+        // if (datasets_4[3]) {
+        //     datasets_4[3].borderColor = orange;
+        //     datasets_4[3].backgroundColor = "rgba(245,158,11,0.10)";
+        // }
+        // if (datasets_4[4]) {
+        //     datasets_4[4].borderColor = magenta;
+        //     datasets_4[4].backgroundColor = "rgba(255,128,255,0.10)";
+        // }
+        // const legendLabels_4 = chart_4.options.plugins?.legend?.labels;
+        // if (legendLabels_4) {
+        //     legendLabels_4.color = muted;
+        //     legendLabels_4.font = { size: 12, weight: "600" };
+        // }
         
-        chart_4.update("none");
+        // chart_4.update("none");
     });
 })();    
 
@@ -1048,8 +1163,10 @@ const chartConfigs = [
     id: "janitzaChart",
     y1: "gridPower",
     y2: "baseline",
+    y3: "setpoint",
     label1: "Snaga prema mreži",
-    label2: "Baseline"
+    label2: "Baseline",
+    label3: "Setpoint"
 },
 {
     id: "janitzaChart_1",
@@ -1071,32 +1188,32 @@ const chartConfigs = [
     id: "janitzaChart_3",
     y1: "soc",
     y2: "optimalni_soc",
-    y3: "SOC_dohvat",
-    y4: "CROPEX",
-    y5: "SOC_izracun",
+    y3: "SOC_izracun",
+    y4: "batteryPower",
+    y5: "CROPEX",
     label1: "Trenutni SOC",
     label2: "Podešeni SOC",
-    label3: "AI SOC",
-    label4: "CROPEX",
-    label5: "Izračunati SOC"
+    label3: "Izračunati SOC",
+    label4: "Snaga baterije",
+    label5: "CROPEX"
 }
 ]
 
-const chartConfigsCustom = [
-{
-    id: "janitzaChart_4",
-    y1: "gridPower",
-    y2: "baseline",
-    y3: "baseline_with_battery",
-    y4: "baseline_no_battery",
-    y5: "batteryPower",
-    label1: "Snaga prema mreži",
-    label2: "Baseline",
-    label3: "Baseline s baterijom",
-    label4: "Baseline bez baterije",
-    label5: "Snaga baterije"
-}
-]
+// const chartConfigsCustom = [
+// {
+//     id: "janitzaChart_4",
+//     y1: "gridPower",
+//     y2: "baseline",
+//     y3: "baseline_with_battery",
+//     y4: "baseline_no_battery",
+//     y5: "batteryPower",
+//     label1: "Snaga prema mreži",
+//     label2: "Baseline",
+//     label3: "Baseline s baterijom",
+//     label4: "Baseline bez baterije",
+//     label5: "Snaga baterije"
+// }
+// ]
 
 
 // ---------------- Downsample history (15min buckets) ----------------
@@ -1124,10 +1241,10 @@ function downsampleHistory(data){
 
         buckets[key].count++
 
-        const isBaseline = ("baseline_no_battery" in d) || ("baseline_with_battery" in d)
-        if (isBaseline) {
-            buckets[key].count_baseline++
-        }
+        // const isBaseline = ("baseline_no_battery" in d) || ("baseline_with_battery" in d)
+        // if (isBaseline) {
+        //     buckets[key].count_baseline++
+        // }
 
         for (let k in d) {
             if (k === "time") continue
@@ -1146,10 +1263,11 @@ function downsampleHistory(data){
 
         for(let k in b){
             if(k !== "time" && k !== "count"){                
-                if (k == "baseline_no_battery" || k == "baseline_with_battery")
-                    avg[k] = b[k] / (b.count_baseline) 
-                else
-                    avg[k] = b[k] / (b.count - b.count_baseline) 
+                // if (k == "baseline_no_battery" || k == "baseline_with_battery")
+                //     avg[k] = b[k] / (b.count_baseline) 
+                // else
+                //     avg[k] = b[k] / (b.count - b.count_baseline) 
+                avg[k] = b[k] / b.count
             }
         }
         return avg
@@ -1201,71 +1319,166 @@ const doubleTapZoomInPlugin = {
     }
 };
 
-
 const aktivacijaBackgroundPlugin = {
     id: 'aktivacijaBackground',
 
-    beforeDraw(chart) {
-
+    beforeDatasetsDraw(chart) {
         if (
-            chart.canvas.id !== "janitzaChart_3" &&
-            chart.canvas.id !== "janitzaChart_4"
+            chart.canvas.id !== "janitzaChart"
         ) return;
 
         const { ctx, chartArea } = chart;
-        const rawData = chart.$rawData || [];
+        if (!chartArea) return;
 
-        if (!rawData.length) return;
+        const metaPower = chart.getDatasetMeta(0);
+        const metaBaseline = chart.getDatasetMeta(1);
+        const metaSetpoint = chart.getDatasetMeta(2);
 
-        // use first visible dataset meta
-        const meta = chart.getDatasetMeta(0);
-
-        if (!meta?.data?.length) return;
+        if (
+            !metaPower?.data?.length ||
+            !metaBaseline?.data?.length ||
+            !metaSetpoint?.data?.length
+        ) return;
 
         ctx.save();
 
-        for (let i = 0; i < rawData.length; i++) {
+        try {
+            const spacing = 10;
 
-            const point = rawData[i];
-            if (!point) continue;
+            const drawSegmentForward = (p1, p2) => {
+                if (p2.cp1x !== undefined && p2.cp1y !== undefined) {
+                    ctx.bezierCurveTo(p2.cp1x, p2.cp1y, p2.cp2x, p2.cp2y, p2.x, p2.y);
+                } else {
+                    ctx.lineTo(p2.x, p2.y);
+                }
+            };
 
-            if (point.aktivacija === 0) continue;
+            const drawSegmentBackward = (p1, p2) => {
+                if (p2.cp1x !== undefined && p2.cp1y !== undefined) {
+                    ctx.bezierCurveTo(p2.cp2x, p2.cp2y, p2.cp1x, p2.cp1y, p1.x, p1.y);
+                } else {
+                    ctx.lineTo(p1.x, p1.y);
+                }
+            };
 
-            const current = meta.data[i];
-            const next = meta.data[i + 1];
+            for (let i = 0; i < metaPower.data.length - 1; i++) {
+                const power1 = metaPower.data[i];
+                const power2 = metaPower.data[i + 1];
 
-            if (!current) continue;
+                const base1 = metaBaseline.data[i];
+                const base2 = metaBaseline.data[i + 1];
 
-            const x = current.x;
-            const nextX = next ? next.x : chartArea.right;
+                const set1 = metaSetpoint.data[i];
+                const set2 = metaSetpoint.data[i + 1];
 
-            if (point.aktivacija_vrsta > 0) {
-                ctx.fillStyle = "rgba(34, 201, 95, 0.3)";
+                if (!power1 || !power2 || !base1 || !base2 || !set1 || !set2) continue;
+
+                // Safely get the true index (handles zoom/decimation)
+                const index1 = power1.$context?.index ?? power1.$context?.dataIndex ?? i;
+                const index2 = power2.$context?.index ?? power2.$context?.dataIndex ?? (i + 1);
+
+                const raw1 = chart.$rawData?.[index1];
+                const raw2 = chart.$rawData?.[index2];
+                if (!raw1 || !raw2) continue;
+
+                const aktivacija1 = Number(raw1.aktivacija_vrsta);
+                const aktivacija2 = Number(raw2.aktivacija_vrsta);
+                const aktivacijaflag1 = Number(raw1.aktivacija);
+                const aktivacijaflag2 = Number(raw2.aktivacija);
+
+                if (!Number.isFinite(aktivacijaflag1) || !Number.isFinite(aktivacijaflag2)) {
+                    continue;
+                }
+                
+                const intervalAktivan = aktivacijaflag1 === 1 || aktivacijaflag2 === 1;
+
+                if (intervalAktivan) {                    
+
+                    if (
+                        !Number.isFinite(power1.x) || !Number.isFinite(power1.y) ||
+                        !Number.isFinite(power2.x) || !Number.isFinite(power2.y)
+                    ) continue;
+
+                    const leftX = power1.x;
+                    const rightX = power2.x;
+                    if (rightX <= leftX) continue;
+
+                    let fillColor = aktivacija1 > 0 
+                        ? "rgba(34, 201, 95, 0.30)" 
+                        : "rgba(252, 4, 4, 0.30)";
+
+                    ctx.beginPath();
+                    ctx.moveTo(power1.x, power1.y);
+                    drawSegmentForward(power1, power2);
+                    ctx.lineTo(base2.x, base2.y);
+                    drawSegmentBackward(base1, base2);
+                    ctx.closePath();
+
+                    ctx.fillStyle = fillColor;
+                    ctx.fill();
+
+                    const minY = Math.min(power1.y, power2.y, set1.y, set2.y);
+                    const maxY = Math.max(power1.y, power2.y, set1.y, set2.y);
+                    const height = maxY - minY;
+
+                    ctx.save();
+                    try {
+                        ctx.beginPath();
+                        ctx.moveTo(power1.x, power1.y);
+                        drawSegmentForward(power1, power2);
+                        ctx.lineTo(set2.x, set2.y);
+                        drawSegmentBackward(set1, set2);
+                        ctx.closePath();
+                        ctx.clip(); 
+
+                        ctx.strokeStyle = "rgba(255, 0, 0, 0.55)";
+                        ctx.lineWidth = 1.5;
+
+                        for (let x = leftX - height; x < rightX + height; x += spacing) {
+                            ctx.beginPath();
+                            ctx.moveTo(x, maxY + height);
+                            ctx.lineTo(x + height, minY - height);
+                            ctx.stroke();
+                        }
+                    } finally {
+                        ctx.restore();
+                    }
+                        
+                }
             }
-            else if (point.aktivacija_vrsta < 0) {
-                ctx.fillStyle = "rgba(252, 4, 4, 0.3)";
-            }
-            else {
-                continue;
-            }
-
-            ctx.fillRect(
-                x,
-                chartArea.top,
-                nextX - x,
-                chartArea.bottom - chartArea.top
-            );
+        } finally {
+            ctx.restore();
         }
-
-        ctx.restore();
     }
 };
 
-// ---------------- Load history once ----------------
+// ---------------- Load history (prvi put cijelu, poslije samo dopune) ----------------
+
+function jeBaselineZapis(d){
+    return ("baseline_no_battery" in d) || ("baseline_with_battery" in d)
+}
+
+function kljucPovijesti(d){
+    // Zapis je jednoznacno odreden vremenom i vrstom (mjerenje ili baseline).
+    return (jeBaselineZapis(d) ? "b" : "p") + d.time.getTime()
+}
 
 async function fetchHistory(){
 
-    const res = await fetch('/get_graph_data')
+    if(dohvatPovijestiUTijeku) return
+    dohvatPovijestiUTijeku = true
+
+    try {
+        // Dvije granice: mjerenja nose trenutno vrijeme, baseline zapisi vrijeme 45 min
+        // unaprijed. Sa zasebnim granicama server salje samo ono sto preglednik nema.
+        let url = '/get_graph_data'
+
+        if(historySince){
+            url += '?since=' + encodeURIComponent(historySince)
+            url += '&since_baseline=' + encodeURIComponent(historySinceBaseline || historySince)
+        }
+
+        const res = await fetch(url)
     const data = await res.json()
 
     const parsed = data.map(d => ({
@@ -1273,9 +1486,54 @@ async function fetchHistory(){
         time:new Date(d.time)
     }))
 
-    historyData = downsampleHistory(parsed)
+        // Sirovi zapisi se dopunjuju, ne zamjenjuju. Baseline zapisi nose vrijeme 45 min
+        // unaprijed pa ih server posalje ponovno - ovdje se prepoznaju i preskacu.
+        const postojeci = new Set(historyRaw.map(kljucPovijesti))
 
-    
+        parsed.forEach(d => {
+            const kljuc = kljucPovijesti(d)
+
+            if(!postojeci.has(kljuc)){
+                postojeci.add(kljuc)
+                historyRaw.push(d)
+            }
+        })
+
+        // Server cuva zadnjih 12 sati, isti prozor drzi i preglednik.
+        const cutoff = Date.now() - 12*60*60*1000
+        historyRaw = historyRaw.filter(d => d.time.getTime() >= cutoff)
+
+        // Granice za sljedeci dohvat: zadnje mjerenje i zadnji baseline zapis, svaki za sebe.
+        let najnovijeMjerenje = 0
+        let najnovijiBaseline = 0
+
+        historyRaw.forEach(d => {
+            const t = d.time.getTime()
+
+            if(jeBaselineZapis(d)){
+                if(t > najnovijiBaseline) najnovijiBaseline = t
+            } else {
+                if(t > najnovijeMjerenje) najnovijeMjerenje = t
+            }
+        })
+
+        if(najnovijeMjerenje > 0){
+            historySince = new Date(najnovijeMjerenje).toISOString()
+        }
+
+        if(najnovijiBaseline > 0){
+            historySinceBaseline = new Date(najnovijiBaseline).toISOString()
+        }
+
+        historyData = downsampleHistory(historyRaw)
+
+    } catch(err) {
+        // Granica se ne pomice, pa sljedeci pokusaj dohvati i ono sto je sada propalo.
+        console.error("Greška pri dohvatu povijesti grafa:", err)
+
+    } finally {
+        dohvatPovijestiUTijeku = false
+    }
 }
 
 
@@ -1302,21 +1560,22 @@ async function fetchRealtimePoint(){
 
 }
 
+
 // ---------------- Fetch prediction ----------------
 
-async function fetchPrediction(){
+// async function fetchPrediction(){
 
-    const res = await fetch('/get_prediction')
-    const data = await res.json()
+//     const res = await fetch('/get_prediction')
+//     const data = await res.json()
 
-    const parsed = data.map(d => ({
-        ...d,
-        time:new Date(d.time)
-    }))
+//     const parsed = data.map(d => ({
+//         ...d,
+//         time:new Date(d.time)
+//     }))
 
-    predictionData = parsed
+//     predictionData = parsed
 
-}
+// }
 
 const REALTIME_WINDOW = 5 * 60 * 1000
 
@@ -1337,22 +1596,22 @@ function getChartData(){
 
 }
 
-function getChartDataCustom(){
+// function getChartDataCustom(){
 
-    const now = Date.now()
-    const sixHoursAgo = now - (6 * 60 * 60 * 1000); 
+//     const now = Date.now()
+//     const sixHoursAgo = now - (6 * 60 * 60 * 1000); 
 
-    const history = historyData.filter(
-        d => d.time.getTime() < now && d.time.getTime() >= sixHoursAgo
-    )
+//     const history = historyData.filter(
+//         d => d.time.getTime() < now && d.time.getTime() >= sixHoursAgo
+//     )
 
-    const future = predictionData.filter(
-        d => d.time.getTime() > now
-    )
+//     const future = predictionData.filter(
+//         d => d.time.getTime() > now
+//     )
 
-    return [...history, ...future]
+//     return [...history, ...future]
 
-}
+// }
 
 
 //inicijalizacija chartova
@@ -1439,7 +1698,7 @@ function initCharts(){
                 },
                 plugins:[aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
             })
-        else if(cfg.id == "janitzaChart_1")
+        else if(cfg.id == "janitzaChart_1" || cfg.id == "janitzaChart")
             charts[cfg.id] = new Chart(ctx, {
 
                 type:'line',
@@ -1503,7 +1762,7 @@ function initCharts(){
                         }
                     }
                 },
-                plugins:[doubleTapZoomInPlugin]
+                plugins:[aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
             })
         else
             charts[cfg.id] = new Chart(ctx, {
@@ -1566,90 +1825,89 @@ function initCharts(){
                 plugins: [aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
             })
     })
-    chartConfigsCustom.forEach(cfg => {
+    // chartConfigsCustom.forEach(cfg => {
 
-        const ctx = document.getElementById(cfg.id).getContext('2d')
+    //     const ctx = document.getElementById(cfg.id).getContext('2d')
 
-        charts[cfg.id] = new Chart(ctx, {
+    //     charts[cfg.id] = new Chart(ctx, {
 
-            type:'line',
+    //         type:'line',
 
-            data:{
-                labels:[],
-                datasets:[
-                {
-                    label:cfg.label1,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label2,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label3,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0,
-                    hidden: true
-                },
-                {
-                    label:cfg.label4,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                },
-                {
-                    label:cfg.label5,
-                    data:[],
-                    tension:0.3,
-                    pointRadius:0
-                }]
-            },
+    //         data:{
+    //             labels:[],
+    //             datasets:[
+    //             {
+    //                 label:cfg.label1,
+    //                 data:[],
+    //                 tension:0.3,
+    //                 pointRadius:0
+    //             },
+    //             {
+    //                 label:cfg.label2,
+    //                 data:[],
+    //                 tension:0.3,
+    //                 pointRadius:0
+    //             },
+    //             {
+    //                 label:cfg.label3,
+    //                 data:[],
+    //                 tension:0.3,
+    //                 pointRadius:0
+    //             },
+    //             {
+    //                 label:cfg.label4,
+    //                 data:[],
+    //                 tension:0.3,
+    //                 pointRadius:0
+    //             },
+    //             {
+    //                 label:cfg.label5,
+    //                 data:[],
+    //                 tension:0.3,
+    //                 pointRadius:0
+    //             }]
+    //         },
 
-            options:{
-                responsive:true,
-                maintainAspectRatio:false,
+    //         options:{
+    //             responsive:true,
+    //             maintainAspectRatio:false,
 
-                plugins:{
-                    zoom:{
-                        limits:{
-                            x:{ minRange: 10 }
-                        },
-                        pan:{
-                            enabled:true,
-                            mode:'x'
-                        },
-                        zoom:{
-                            wheel:{enabled:true},
-                            pinch:{enabled:true},
-                            mode:'x'
-                        }
-                    }
-                },
+    //             plugins:{
+    //                 zoom:{
+    //                     limits:{
+    //                         x:{ minRange: 10 }
+    //                     },
+    //                     pan:{
+    //                         enabled:true,
+    //                         mode:'x'
+    //                     },
+    //                     zoom:{
+    //                         wheel:{enabled:true},
+    //                         pinch:{enabled:true},
+    //                         mode:'x'
+    //                     }
+    //                 }
+    //             },
 
-                scales:{
+    //             scales:{
                     
-                    x:{
-                        ticks:{color:"#ffffff"},
-                        grid:{color:"#97a9cc"}
-                    },
+    //                 x:{
+    //                     ticks:{color:"#ffffff"},
+    //                     grid:{color:"#97a9cc"}
+    //                 },
 
-                    y:{
-                        min:cfg.min,
-                        max:cfg.max,
-                        ticks:{color:"#ffffff"},
-                        grid:{color:"#97a9cc"}
-                    }
-                }
-            },
-            plugins: [aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
-        })
+    //                 y:{
+    //                     min:cfg.min,
+    //                     max:cfg.max,
+    //                     ticks:{color:"#ffffff"},
+    //                     grid:{color:"#97a9cc"}
+    //                 }
+    //             }
+    //         },
+    //         plugins: [aktivacijaBackgroundPlugin, doubleTapZoomInPlugin]
+    //     })
 
-    })
+    // })
 }
 
 function updateCharts(){
@@ -1671,7 +1929,7 @@ function updateCharts(){
         chart.data.datasets[0].data = dataset.map(d => d[cfg.y1])
         chart.data.datasets[1].data = dataset.map(d => d[cfg.y2])
         
-        if(cfg.id == "janitzaChart_1"){
+        if(cfg.id == "janitzaChart_1" || cfg.id == "janitzaChart"){
             chart.data.datasets[2].data = dataset.map(d => d[cfg.y3])
         }
         if(cfg.id == "janitzaChart_3"){
@@ -1683,35 +1941,35 @@ function updateCharts(){
         chart.update('none')
 
     })
-    updateChartsCustom()
+    // updateChartsCustom()
 }
 
-function updateChartsCustom(){
+// function updateChartsCustom(){
     
-    const dataset = getChartDataCustom()
+//     const dataset = getChartDataCustom()
 
-    const labels = dataset.map(d =>
-        d.time.toLocaleTimeString('hr-HR',{hour12:false})
-    )
+//     const labels = dataset.map(d =>
+//         d.time.toLocaleTimeString('hr-HR',{hour12:false})
+//     )
 
-    chartConfigsCustom.forEach(cfg => {
+//     chartConfigsCustom.forEach(cfg => {
 
-        const chart = charts[cfg.id]
-        if(!chart) return
+//         const chart = charts[cfg.id]
+//         if(!chart) return
 
-        chart.$rawData = dataset;
+//         chart.$rawData = dataset;
         
-        chart.data.labels = labels       
-        chart.data.datasets[0].data = dataset.map(d => d[cfg.y1] ?? null)
-        chart.data.datasets[1].data = dataset.map(d => d[cfg.y2] ?? null)
-        chart.data.datasets[2].data = dataset.map(d => d[cfg.y3] ?? null)
-        chart.data.datasets[3].data = dataset.map(d => d[cfg.y4] ?? null)
-        chart.data.datasets[4].data = dataset.map(d => d[cfg.y5] ?? null)
+//         chart.data.labels = labels       
+//         chart.data.datasets[0].data = dataset.map(d => d[cfg.y1] ?? null)
+//         chart.data.datasets[1].data = dataset.map(d => d[cfg.y2] ?? null)
+//         chart.data.datasets[2].data = dataset.map(d => d[cfg.y3] ?? null)
+//         chart.data.datasets[3].data = dataset.map(d => d[cfg.y4] ?? null)
+//         chart.data.datasets[4].data = dataset.map(d => d[cfg.y5] ?? null)
 
-        chart.update('none')
+//         chart.update('none')
 
-    })
-}
+//     })
+// }
 
 
 const radios = document.querySelectorAll('input[name="viewMode"]');
@@ -1723,12 +1981,12 @@ radios.forEach(radio => {
             const chartProduction = document.getElementById('chart_production');
             const chartConsuption = document.getElementById('chart_consuption');
             const chartSOC = document.getElementById('chart_SOC');
-            const chartBaseline = document.getElementById('chart_baseline');	
+            // const chartBaseline = document.getElementById('chart_baseline');	
             chartPower.style.display = 'none';      
             chartProduction.style.display = 'none';      
             chartConsuption.style.display = 'none';    
             chartSOC.style.display = 'none';   
-            chartBaseline.style.display = 'none';   
+            // chartBaseline.style.display = 'none';   
             switch (radio.value) {
                 case 'power':                
                     chartPower.style.display = 'block';              
@@ -1742,9 +2000,9 @@ radios.forEach(radio => {
                 case 'soc': 
                     chartSOC.style.display = 'block';  
                 break;
-                case 'baseline': 
-                    chartBaseline.style.display = 'block';  
-                break;
+                // case 'baseline': 
+                //     chartBaseline.style.display = 'block';  
+                // break;
             }
         }
     });
@@ -1755,6 +2013,7 @@ function setReadOnlyGrid() {
 
     const baterija_flag = backend_map["M_baterija_postoji_flag"].value;
     const agregator_flag = backend_map["M_vrsta_agregatora"].value;
+    const upravljiva_potrosnja_flag = backend_map["M_upravljiva_potrosnja_postoji_flag"].value;						   
     
     if(baterija_flag == 0){
         document.getElementById("Baterija_grid").classList.add("readonly-section");
@@ -1764,4 +2023,8 @@ function setReadOnlyGrid() {
         document.getElementById("Agregiranje_grid").classList.add("readonly-section");
     }
 
+    if(upravljiva_potrosnja_flag == 0){
+        document.getElementById("Upravljiva_potrosnja").style.display = 'none';
+        document.getElementById("Upravljiva_potrosnja_status").style.display = 'none';
+    }
 }

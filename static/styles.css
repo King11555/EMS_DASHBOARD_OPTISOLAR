@@ -2018,3 +2018,16 @@ h1::after {
 .display-ruby{
   display: ruby;
 }
+#infoArbitraza {
+    font-family: Consolas, Monaco, monospace;
+    white-space: pre;
+}
+
+/* Naziv elektrane u naslovu grafa - zagrade samo ako naziv postoji */
+.chart-title-plant:not(:empty)::before {
+    content: "(";
+}
+
+.chart-title-plant:not(:empty)::after {
+    content: ")";
+}
