@@ -11,6 +11,7 @@
   --green: #22C55E;
   --orange: #F59E0B;
   --red: #EF4444;
+  --purple: #A855F7;
 
   /* Supporting */
   --radius: 12px;
@@ -244,8 +245,23 @@ button:hover {
   .right-side { align-items: flex-start; }
 }
 
-@media (max-width: 600px) {
-  .container1 { grid-template-columns: 1fr; }
+@media (max-width: 600px) {  
+  .container1 {
+    grid-template-columns: 1fr;
+  }
+
+  .container1 > a,
+  .container1 > div,
+  .scada-item {
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .scada-item {
+    overflow: hidden;
+  }
+
   .status-box { width: 100%; }
 }
 
@@ -309,7 +325,6 @@ button:hover {
   display: block;
   position: relative;
   padding-bottom: 10px;
-  margin-bottom: 6px;
 }
 
 .scada-title::after {
@@ -350,6 +365,7 @@ button:hover {
   letter-spacing: 0.2px;
   color: var(--text);
   line-height: 1.05;
+  font-variant-numeric: tabular-nums;
 }
 
 .scada-main--right {
@@ -371,6 +387,29 @@ button:hover {
 
 .scada-row .scada-sub {
   text-align: right;
+}
+
+@media (max-width: 600px) {
+  .scada-row > *,
+  .battery-row > * {
+    min-width: 0;
+  }
+
+  .scada-row > :last-child,
+  .battery-row > :last-child {
+    flex: 1 1 auto;
+    min-width: 0;
+    text-align: right;
+  }
+
+  .scada-row .scada-main,
+  .battery-row .scada-main {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: flex-end;
+    margin-left: auto;
+    white-space: nowrap;
+  }
 }
 
 .scada-row--stack {
@@ -544,17 +583,26 @@ button:hover {
 }
 
 .status-window::before {
-  content: "⏻";
-  font-size: 16px;
-  line-height: 1;
-  opacity: 0.9;
+    display: none;
+}
+
+.status-window__icon {
+  width: 16px;
+  height: 16px;
+  display: block;
+  flex: 0 0 auto;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
 }
 
 .status-window[data-state="active"] {
   border-color: rgba(34, 197, 94, 0.35);
 }
 
-.status-window[data-state="active"]::before {
+.status-window[data-state="active"] .status-window__icon {
   color: var(--green);
   opacity: 1;
 }
@@ -563,14 +611,18 @@ button:hover {
   border-color: rgba(239, 68, 68, 0.35);
 }
 
-.status-window[data-state="inactive"]::before {
+.status-window[data-state="inactive"] .status-window__icon {
   color: var(--red);
   opacity: 0.95;
 }
 
-.status-window[data-state="unknown"]::before {
-  color: var(--muted);
-  opacity: 0.8;
+.status-window[data-state="following"] {
+  border-color: rgba(168, 85, 247, 0.35);
+}
+
+.status-window[data-state="following"]::before {
+  color: var(--purple);
+  opacity: 1;
 }
 
 /* Inline details list (previously hover-only). */
@@ -664,7 +716,6 @@ button:hover {
   justify-content: space-between;
   gap: 12px;
   padding: 8px 10px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
   font-size: 13px;
 }
 
@@ -704,7 +755,29 @@ button:hover {
 .energy-footer .scada-main-type {
     white-space: nowrap;
 }
+@media (max-width: 600px) {
+  .energy-footer {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
 
+  .energy-footer .energy-line {
+    width: 100%;
+    min-width: 0;
+    justify-content: flex-end;
+  }
+
+  .energy-footer .energy-line:last-child {
+    margin-left: 0;
+    justify-content: flex-end;
+  }
+}
+
+/* Aggregated energy total: keep the UKUPNO group on the right side. */
+.energy-line--total {
+  justify-content: flex-end;
+}
 .energy-line--right {
     margin-left: auto;
     justify-content: flex-end;
@@ -1367,6 +1440,13 @@ button:active {
     0 0 22px 8px rgba(255, 59, 106, 0.12);
 }
 
+.status-window[data-state="following"] {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 0 0 1px rgba(168, 85, 247, 0.28),
+    0 0 22px 8px rgba(168, 85, 247, 0.12);
+}
+
 /* Modals: glass panel + HUD close */
 .modal {
   background: rgba(0, 0, 0, 0.74);
@@ -1695,6 +1775,12 @@ h1::after {
   font-size: 14px;
 }
 
+@media (max-width: 600px) {
+  .energy_label_font{
+    font-size: 13px;
+  }
+}
+
 .radio-section {
   display: flex;
   gap: 30px;
@@ -1777,6 +1863,51 @@ h1::after {
     align-items: center;
     width: 100%;
     white-space: nowrap;
+}
+.setpoint-mainline {
+    display: flex;
+}
+
+.setpoint-caption {
+  display: inline;
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+  color: inherit;
+  text-transform: inherit;
+}
+
+@media (max-width: 600px) {
+  .setpoint-row {
+    display: block;
+    white-space: normal;
+  }
+
+  .setpoint-mainline {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .setpoint-mainline > .register-label {
+    flex: 1 1 auto;
+    min-width: 0;
+    width: auto;
+    margin-bottom: 0;
+  }
+
+  .setpoint-mainline > .text-right {
+    align-self: flex-start;
+    flex: 0 1 auto;
+    width: auto;
+    padding-bottom: 0 !important;
+    text-align: right;
+    white-space: nowrap;
+  }
+
 }
 
 /* Overlay */
@@ -1877,6 +2008,33 @@ h1::after {
     margin-bottom: 8px;
     border: 1px solid rgba(255,255,255,0.05);
 }
+
+
+@media (max-width: 600px) {
+  .popup_overlay:not(.hidden) {
+    align-items: flex-start;
+    justify-content: center;
+    overflow-y: auto;
+    padding: 12px;
+  }
+
+  .popup_overlay:not(.hidden) .popup {
+    width: 100%;
+    max-width: 100%;
+    max-height: calc(100dvh - 24px);
+    margin: 0;
+    overflow-y: auto;
+    transform: none;
+  }
+
+  .popup_overlay:not(.hidden) .popup_close-btn {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    margin-left: auto;
+  }
+}
+
 .clickable:hover {
   cursor: pointer;
 }
@@ -1888,16 +2046,39 @@ h1::after {
 
 /* Decimal split styling for dynamic values */
 .value-int {
+  display: inline-block;
   font-weight: inherit;
   color: inherit;
+  font-variant-numeric: tabular-nums;
 }
 
 .value-decimal {
+  display: inline-block;
   font-size: 0.66em;
   opacity: 0.8;
   font-weight: 600;
   letter-spacing: 0.01em;
   vertical-align: baseline;
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 600px) {
+  .value-int,
+  .value-decimal {
+    align-self: auto;
+  }
+
+  .value-int {
+    min-width: 4ch;
+    text-align: right;
+  }
+
+  .value-decimal {
+    min-width: 3ch;
+    line-height: 1;
+    text-align: left;
+    transform: translateY(1px);
+  }
 }
 
 /* Header brand row: logo left, plant name right */
@@ -1938,13 +2119,13 @@ h1::after {
 @media (max-width: 700px) {
   .hud-brand-row {
     flex-direction: column;
-    align-items: flex-start;
+    align-items: center;
     gap: 10px;
   }
 
   .hud-plant-name {
     width: 100%;
-    text-align: left;
+    text-align: center;
   }
 }
 
@@ -2030,4 +2211,173 @@ h1::after {
 
 .chart-title-plant:not(:empty)::after {
     content: ")";
+}
+
+/* Odabir jezika - desno od sata, istog izgleda kao status-box */
+.clock-lang-row {
+    display: flex;
+    align-items: stretch;
+    gap: 10px;
+}
+
+/* Izbornik jezika je <details> s linkovima, a ne <select>: otvorenu listu <select>-a crta
+   preglednik i ne da se stilizirati u svim preglednicima. */
+.lang-dropdown {
+    position: relative;
+}
+
+.lang-select {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 0 14px;
+    list-style: none;
+    border: 1px solid rgba(58, 66, 86, 0.95);
+    border-radius: var(--radius);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 38%),
+        linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    box-shadow:
+        var(--shadow),
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        inset 0 0 0 1px var(--border);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: 0.4px;
+    cursor: pointer;
+    user-select: none;
+}
+
+.lang-select::-webkit-details-marker {
+    display: none;
+}
+
+.lang-select::after {
+    content: "";
+    width: 11px;
+    height: 8px;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23A8D2DE' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center / contain;
+    transition: transform 0.15s ease;
+}
+
+.lang-dropdown[open] .lang-select::after {
+    transform: rotate(180deg);
+}
+
+.lang-select:hover,
+.lang-dropdown[open] .lang-select {
+    border-color: rgba(88, 229, 255, 0.45);
+}
+
+.lang-list {
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    z-index: 10;
+    min-width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 6px;
+    border: 1px solid rgba(88, 229, 255, 0.25);
+    border-radius: var(--radius);
+    background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05) 0%, transparent 38%),
+        linear-gradient(180deg, var(--panel) 0%, var(--panel-2) 100%);
+    box-shadow:
+        var(--shadow),
+        0 0 20px 4px rgba(88, 229, 255, 0.10);
+}
+
+.lang-list a {
+    padding: 8px 14px;
+    border-radius: 8px;
+    color: var(--muted);
+    font-size: 15px;
+    font-weight: 650;
+    letter-spacing: 0.4px;
+    text-decoration: none;
+}
+
+.lang-list a:hover,
+.lang-list a:focus-visible {
+    background: rgba(88, 229, 255, 0.12);
+    color: var(--text);
+    outline: none;
+}
+
+.lang-list a.active {
+    background: linear-gradient(180deg, rgba(88, 229, 255, 0.88) 0%, rgba(88, 229, 255, 0.62) 100%);
+    color: #fff;
+}
+
+/* Kartice su u DOM-u iza headera i na istom z-indexu, pa bi prekrile otvorenu listu */
+.hud-header:has(.lang-dropdown[open]) {
+    z-index: 2;
+}
+
+@media (max-width: 700px) {
+    .clock-lang-row {
+        width: 100%;
+    }
+
+    .clock-lang-row .status-box {
+        flex: 1 1 auto;
+        width: auto;
+        min-width: 0;
+    }
+}
+
+.pv-values {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 6px;
+    padding-bottom: 0px;
+}
+
+.pv-bottom-line {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    gap: 16px;
+}
+
+.total-kwh {
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    gap: 2px;
+}
+
+.arrow-up,
+.arrow-down {
+    width: 16px;
+    height: 16px;
+    vertical-align: center;
+}
+
+.arrow-up {
+    color: var(--green);
+}
+
+.arrow-down { 
+    color: var(--red);
+}
+
+.ibp-value {
+    text-align: left;
+}
+
+.pv-values {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 6px;
 }

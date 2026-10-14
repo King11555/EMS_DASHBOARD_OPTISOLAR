@@ -1,4 +1,19 @@
 
+// Tekstovi sucelja na odabranom jeziku. Server ih upisuje u SCADA.html iz
+// static/prijevodi/<jezik>.json, a jezik stoji u <html lang>.
+const T = JSON.parse(document.getElementById("prijevodi").textContent);
+const JEZIK = document.documentElement.lang;
+
+// Izbornik jezika (<details>) zatvara se klikom izvan njega i tipkom Escape
+document.addEventListener("click", e => {
+    const izbornik = document.querySelector(".lang-dropdown[open]");
+    if (izbornik && !izbornik.contains(e.target)) izbornik.removeAttribute("open");
+});
+
+document.addEventListener("keydown", e => {
+    if (e.key === "Escape") document.querySelector(".lang-dropdown[open]")?.removeAttribute("open");
+});
+
 // ------------------- Persistent & Downsampled Janitza Graph -------------------
 
 let historyData = []
@@ -97,6 +112,7 @@ const backend_map ={
     "M_ABS_POS_FLEX": {value: 0},
     "M_ABS_NEG_FLEX": {value: 0},
     "M_ACT_flag_read": {value:0},
+    "M_ACT_rucno": {value:0},
     "M_DELTA_POS_FLEX": {value:0},
     "M_DELTA_NEG_FLEX": {value:0},
 	"M_HEP_podeseno": {value:0},
@@ -104,7 +120,6 @@ const backend_map ={
     "M_Potrosnja_VIZ": {value:0},
     "M_OZRACENOST": {value:0},
     "M_SOC_AUTO_VIZ":{value:0},
-    "M_SOC_AUTO_AI":{value:0},
     "M_AMB_TEMP":{value:0},
     "M_Baseline":{value:0},
     "M_energyPlus":{value:0},
@@ -122,6 +137,10 @@ const backend_map ={
     "M_cijenaUkupno":{value:0},
     "M_energijaGasenja":{value:0},
     "M_cijenaGasenja":{value:0},
+    "M_potrosnja_ukupno_kwh":{value:0},
+    "M_baterija_preuzimanje_ukupno_kwh":{value:0},
+    "M_baterija_predaja_ukupno_kwh":{value:0},
+    "M_elektrana_ukupno_kwh":{value:0},
     "M_PV_prediction":{value:0},
     "M_CS_prediction":{value:0},
     "M_ENTSOE_cijena":{value:0},
@@ -179,9 +198,13 @@ const valueBindings = {
     energijaGasenja: "M_energijaGasenja",
     cijenaGasenja: "M_cijenaGasenja",
 
+    ElektranaUkupnoKwh: "M_elektrana_ukupno_kwh",
+    BaterijaPredajaUkupnoKwh: "M_baterija_predaja_ukupno_kwh",
+    BaterijaPreuzimanjeUkupnoKwh: "M_baterija_preuzimanje_ukupno_kwh",
+    potrosnjaUkupnoKwh: "M_potrosnja_ukupno_kwh",
+
     maxPVprocjena: "M_OZRACENOST",
     SOC_AUTO: "M_SOC_AUTO_VIZ",
-    SOC_AUTO_AI: "M_SOC_AUTO_AI",
 
     M_ABS_POS_FLEX: "M_ABS_POS_FLEX",
     M_ABS_NEG_FLEX: "M_ABS_NEG_FLEX",
@@ -294,10 +317,17 @@ function updateSpecialValues() {
 
     // --- ACT STATUS ---
     const ackt = backend_map["M_ACT_flag_read"].value;
+    const act_rucno = backend_map["M_ACT_rucno"].value;
 
+    // U modu 1 EMS prati setpoint agregatora i bez aktivacije; kad aktivacija krene, ide Active.
     if (DOM.act_viz) {
-        DOM.act_viz.textContent =
-            ackt == 1 ? "Aktivna" : "Neaktivna";
+        const statusText = DOM.act_viz.querySelector(".status-window__text");
+        const statusValue = ackt == 1 ? "Aktivna" : "Neaktivna";
+        if (statusText) {
+            statusText.textContent = statusValue;
+        } else {
+            DOM.act_viz.textContent = statusValue;
+        }
     }
     
     if (DOM.infoArbitraza) {
@@ -321,10 +351,10 @@ function updateSpecialValues() {
     const Mineri = backend_map["M_Mineri_rade"].value;    
     const Mineri_status = document.getElementById("Slika_mineri");    
     if(Mineri==1){
-        Mineri_status.textContent = "U radu";
+        Mineri_status.textContent = T.u_radu;
         Mineri_status.style.color = "#00ff99";
     }else{ 
-        Mineri_status.textContent = "Pauzirano";
+        Mineri_status.textContent = T.pauzirano;
         Mineri_status.style.color = "orange";   
     }
 }
@@ -413,11 +443,11 @@ function SendAndUpdateValues() {
             showAutoInputMessage(`${data.message}<br>${values}`, true, 10000);
 
             } else {
-                showAutoInputMessage(data.message || "Greška pri primjeni vrijednosti", false);
+                showAutoInputMessage(data.message || T.greska_primjene, false);
             }
         })
         .catch(err => {
-            showAutoInputMessage("Greška u komunikaciji s backendom", false);
+            showAutoInputMessage(T.greska_backend, false);
             console.error(err);
         });
     }
@@ -448,11 +478,11 @@ function createWriteRegisterRow(register) {
     const inputEl = document.createElement("input");
     inputEl.type = "number";
     inputEl.id = `writeValue-${register.id}-${register.client}`;
-    inputEl.placeholder = "Vrijednost";
+    inputEl.placeholder = T.vrijednost;
     inputEl.style.width = "100px";
 
     const buttonEl = document.createElement("button");
-    buttonEl.textContent = "Upiši";
+    buttonEl.textContent = T.upisi;
     buttonEl.onclick = () => manualWriteRegister(register.id, register.client);
 
     const explDiv = document.createElement("div");
@@ -472,7 +502,7 @@ function manualWriteRegister(registerId, client) {
     const value = inputEl.value;
     
     if (value === "") { 
-        alert("Molimo unesite vrijednost!"); 
+        alert(T.molimo_unesite_vrijednost); 
         return; 
     }
 
@@ -480,7 +510,7 @@ function manualWriteRegister(registerId, client) {
     const selectedRegister = writeRegistersList.find(register => register.id === registerId && register.client === client);
     
     if (!selectedRegister) {
-        alert("Ne postoji registracija za odabrani ID i klijent!");
+        alert(T.nema_registra);
         return;
     }
     const calculatedValue = value * selectedRegister.gain;
@@ -512,7 +542,7 @@ function manualWriteRegister(registerId, client) {
         inputEl.value = "";
     })
     .catch(err => {
-        alert("Greška pri komunikaciji sa serverom!");
+        alert(T.greska_server);
         console.error(err);
     });
 }
@@ -585,11 +615,11 @@ async function prijaviSe() {
 
         if (odgovor.ok) return true;
 
-        alert("Pogrešna lozinka.");
+        alert(T.pogresna_lozinka);
         return false;
 
     } catch (e) {
-        alert("Greška pri provjeri lozinke - nema veze sa serverom.");
+        alert(T.greska_lozinka_veza);
         return false;
     }
 }
@@ -599,7 +629,7 @@ async function setMode(newMode) {
     let modeValue = 1;
 
     if (newMode === 'ručni') {
-        if (!confirm("UPOZORENJE:\n\nBudite oprezni kod ručnog upisa podataka!\nNeopreznim direktnim upisivanjem u registre sunčane elektrane i baterija, može se premašiti maksimalna dozvoljena izlazna snaga, što može rezultatirati proradom strujnih zaštita i izbacivanjem cijelog postrojenja iz mreže.\n\nŽelite li nastaviti?")) return;
+        if (!confirm(T.upozorenje_rucni)) return;
 
         if (!await prijaviSe()) return;
 
@@ -608,7 +638,7 @@ async function setMode(newMode) {
         modeValue = 0;
 
     } else if (newMode === 'automatski') {
-        if (!confirm("UPOZORENJE:\n\nAutomatski način rada - daljinsko upravljanje postrojenjem pomoću sustava aktivacije\n\n\nŽelite li nastaviti?")) return;
+        if (!confirm(T.upozorenje_automatski)) return;
 
         if (!await prijaviSe()) return;
 
@@ -655,7 +685,7 @@ function sendManualValue() {
     ACT_rucno = document.getElementById('ACT_rucno').value;
     SOC_BAT_AUTO = document.getElementById('SOC-bat-auto').value;
     if((ACT_podesena_snaga_rucno == "")&&(ACT_rucno == "")&&(SOC_BAT_AUTO=="")){
-        alert("Molimo unesite vrijednost!");
+        alert(T.molimo_unesite_vrijednost);
         return;
         }
     SendAndUpdateValues();       
@@ -676,7 +706,7 @@ async function mineriPauseResume(akcija) {
         showAutoInputMessage(response_tekst["message"], true);
     } catch (error) {
         resultBox.innerText = "❌ Error sending request.";
-        showAutoInputMessage("❌ Error sending request.", false);
+        showAutoInputMessage(T.greska_slanja, false);
         console.error(error);
     }
 }
@@ -745,12 +775,13 @@ async function mineriPauseResume(akcija) {
     }
 
     // Activation status pill (do not modify legacy JS; it writes textContent + inline bg)
+    // Tekst je na odabranom jeziku, pa se usporeduje s prijevodom, a ne s hrvatskom rijeci.
     function getActivationStateFromText(text) {
-        const t = String(text ?? "").trim().toLowerCase();
+        const t = String(text ?? "").trim();
         if (!t) return "unknown";
-        // Prefer explicit inactive match first
-        if (t.includes("neaktiv")) return "inactive";
-        if (t.includes("aktiv")) return "active";
+        if (t === T.neaktivna) return "inactive";
+        if (t === T.aktivna) return "active";
+        if (t === T.pracenje_setpointa) return "following";
         return "unknown";
     }
 
@@ -770,10 +801,10 @@ async function mineriPauseResume(akcija) {
 
     // Miner status pill (legacy JS writes Running/Paused + inline colors)
     function getMinerStateFromText(text) {
-        const t = String(text ?? "").trim().toLowerCase();
+        const t = String(text ?? "").trim();
         if (!t) return "unknown";
-        if (t.includes("pauzirano") || t.includes("neaktiv")) return "inactive";
-        if (t.includes("u radu") || t.includes("aktiv")) return "active";
+        if (t === T.pauzirano) return "inactive";
+        if (t === T.u_radu) return "active";
         return "unknown";
     }
 
@@ -1029,12 +1060,12 @@ function askPassword() {
 //...............KALENDAR ZA ODABIR DATUMA........................
 
 flatpickr("#startDate", {
-    locale: "hr",
+    locale: JEZIK,
     defaultDate: new Date()
 });
 
 flatpickr("#endDate", {
-    locale: "hr",
+    locale: JEZIK,
     defaultDate: new Date()
 });
 
@@ -1042,7 +1073,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     startPicker = flatpickr("#startDate", {
         dateFormat: "d.m.Y.",
-        locale: "hr",          
+        locale: JEZIK,          
         onChange: function(selectedDates) {
             endPicker.set("minDate", selectedDates[0]);
         }
@@ -1050,7 +1081,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
     endPicker = flatpickr("#endDate", {
         dateFormat: "d.m.Y.",
-        locale: "hr"
+        locale: JEZIK
     });
 
 });
@@ -1084,7 +1115,7 @@ function sendDateRange() {
     datumiIspis.textContent = text;
 
     if (!start || !end || start == "undefined-undefined-" || end == "undefined-undefined-") {
-        alert("Odaberi datume");
+        alert(T.odaberi_datume);
         return;
     }
 
@@ -1098,7 +1129,7 @@ function sendDateRange() {
             end_date: end
         })
     })
-    .catch(() => alert("Greška"));
+    .catch(() => alert(T.greska));
 }
  
 /* Default dates (timezone safe) */
@@ -1164,7 +1195,7 @@ const chartConfigs = [
     y1: "gridPower",
     y2: "baseline",
     y3: "setpoint",
-    label1: "Snaga prema mreži",
+    label1: T.snaga_prema_mrezi,
     label2: "Baseline",
     label3: "Setpoint"
 },
@@ -1173,16 +1204,16 @@ const chartConfigs = [
     y1: "proizvodnja",
     y2: "predikcija_proiz",
     y3: "insolacija_PV",
-    label1: "Proizvodnja",
-    label2: "Predikcija proizvodnje",
-    label3: "Procjena proizvodnje"
+    label1: T.proizvodnja,
+    label2: T.predikcija_proizvodnje,
+    label3: T.procjena_proizvodnje
 },
 {
     id: "janitzaChart_2",
     y1: "potrosnja",
     y2: "predikcija_potr",
-    label1: "Potrošnja",
-    label2: "Predikcija potrošnje"
+    label1: T.potrosnja,
+    label2: T.predikcija_potrosnje
 },
 {
     id: "janitzaChart_3",
@@ -1191,10 +1222,10 @@ const chartConfigs = [
     y3: "SOC_izracun",
     y4: "batteryPower",
     y5: "CROPEX",
-    label1: "Trenutni SOC",
-    label2: "Podešeni SOC",
-    label3: "Izračunati SOC",
-    label4: "Snaga baterije",
+    label1: T.trenutni_soc,
+    label2: T.podeseni_soc,
+    label3: T.izracunati_soc,
+    label4: T.snaga_baterije,
     label5: "CROPEX"
 }
 ]
@@ -1218,62 +1249,81 @@ const chartConfigs = [
 
 // ---------------- Downsample history (15min buckets) ----------------
 
-function downsampleHistory(data){
 
-    const buckets = {}
+function downsampleHistory(data) {
+    const buckets = {};
 
     data.forEach(d => {
+        const bucket = new Date(d.time);
+        const rounded = Math.floor(bucket.getMinutes() / 2) * 2;
 
-        const bucket = new Date(d.time)
-        const m = bucket.getMinutes()
-        const rounded = Math.floor(m/2)*2
+        bucket.setMinutes(rounded, 0, 0);
+        const key = bucket.getTime();
 
-        bucket.setMinutes(rounded,0,0)
-        const key = bucket.getTime()
-
-        if(!buckets[key]){
+        if (!buckets[key]) {
             buckets[key] = {
                 time: bucket,
                 count: 0,
-                count_baseline: 0
+                aktivacija: 0,
+                aktivacija_vrsta: null
+            };
+        }
+
+        const b = buckets[key];
+        b.count++;
+
+        // Aktivacija je zastavica, a ne mjerna veličina.
+        if (Number(d.aktivacija) === 1) {
+            b.aktivacija = 1;
+
+            // Sačuvaj vrstu aktivacije iz aktivnog zapisa.
+            const vrsta = Number(d.aktivacija_vrsta);
+            if (Number.isFinite(vrsta)) {
+                b.aktivacija_vrsta = vrsta;
             }
         }
 
-        buckets[key].count++
+        // Ostale numeričke veličine računaju se kao prosjek.
+        for (const k in d) {
+            if (
+                k === "time" ||
+                k === "aktivacija" ||
+                k === "aktivacija_vrsta"
+            ) {
+                continue;
+            }
 
-        // const isBaseline = ("baseline_no_battery" in d) || ("baseline_with_battery" in d)
-        // if (isBaseline) {
-        //     buckets[key].count_baseline++
-        // }
+            if (typeof d[k] !== "number" || !Number.isFinite(d[k])) {
+                continue;
+            }
 
-        for (let k in d) {
-            if (k === "time") continue
+            if (b[k] === undefined) {
+                b[k] = 0;
+            }
 
-            if (buckets[key][k] === undefined) {
-                buckets[key][k] = d[k]
+            b[k] += d[k];
+        }
+    });
+
+    return Object.values(buckets).map(b => {
+        const avg = { time: b.time };
+
+        for (const k in b) {
+            if (k === "time" || k === "count") continue;
+
+            if (k === "aktivacija") {
+                avg[k] = b[k];
+            } else if (k === "aktivacija_vrsta") {
+                avg[k] = b[k];
             } else {
-                buckets[key][k] += d[k]
+                avg[k] = b[k] / b.count;
             }
         }
-    })
 
-    return Object.values(buckets).map(b => { 
-
-        const avg = {time:b.time}
-
-        for(let k in b){
-            if(k !== "time" && k !== "count"){                
-                // if (k == "baseline_no_battery" || k == "baseline_with_battery")
-                //     avg[k] = b[k] / (b.count_baseline) 
-                // else
-                //     avg[k] = b[k] / (b.count - b.count_baseline) 
-                avg[k] = b[k] / b.count
-            }
-        }
-        return avg
-
-    }).sort((a,b)=>a.time-b.time)
+        return avg;
+    }).sort((a, b) => a.time - b.time);
 }
+
 
 
 const doubleTapZoomInPlugin = {
@@ -1382,69 +1432,63 @@ const aktivacijaBackgroundPlugin = {
                 if (!raw1 || !raw2) continue;
 
                 const aktivacija1 = Number(raw1.aktivacija_vrsta);
-                const aktivacija2 = Number(raw2.aktivacija_vrsta);
-                const aktivacijaflag1 = Number(raw1.aktivacija);
-                const aktivacijaflag2 = Number(raw2.aktivacija);
 
-                if (!Number.isFinite(aktivacijaflag1) || !Number.isFinite(aktivacijaflag2)) {
-                    continue;
-                }
+                const aktivan1 = Number(raw1.aktivacija) === 1;
+                const aktivan2 = Number(raw2.aktivacija) === 1;
+
+                const intervalAktivan = aktivan1 || aktivan2;
                 
-                const intervalAktivan = aktivacijaflag1 === 1 || aktivacijaflag2 === 1;
+                if (!intervalAktivan) continue;            
 
-                if (intervalAktivan) {                    
+                if (
+                    !Number.isFinite(power1.x) || !Number.isFinite(power1.y) ||
+                    !Number.isFinite(power2.x) || !Number.isFinite(power2.y)
+                ) continue;
 
-                    if (
-                        !Number.isFinite(power1.x) || !Number.isFinite(power1.y) ||
-                        !Number.isFinite(power2.x) || !Number.isFinite(power2.y)
-                    ) continue;
+                const leftX = power1.x;
+                const rightX = power2.x;
+                if (rightX <= leftX) continue;
 
-                    const leftX = power1.x;
-                    const rightX = power2.x;
-                    if (rightX <= leftX) continue;
+                let fillColor = aktivacija1 > 0 
+                    ? "rgba(34, 201, 95, 0.30)" 
+                    : "rgba(252, 4, 4, 0.30)";
 
-                    let fillColor = aktivacija1 > 0 
-                        ? "rgba(34, 201, 95, 0.30)" 
-                        : "rgba(252, 4, 4, 0.30)";
+                ctx.beginPath();
+                ctx.moveTo(power1.x, power1.y);
+                drawSegmentForward(power1, power2);
+                ctx.lineTo(base2.x, base2.y);
+                drawSegmentBackward(base1, base2);
+                ctx.closePath();
 
+                ctx.fillStyle = fillColor;
+                ctx.fill();
+
+                const minY = Math.min(power1.y, power2.y, set1.y, set2.y);
+                const maxY = Math.max(power1.y, power2.y, set1.y, set2.y);
+                const height = maxY - minY;
+
+                ctx.save();
+                try {
                     ctx.beginPath();
                     ctx.moveTo(power1.x, power1.y);
                     drawSegmentForward(power1, power2);
-                    ctx.lineTo(base2.x, base2.y);
-                    drawSegmentBackward(base1, base2);
+                    ctx.lineTo(set2.x, set2.y);
+                    drawSegmentBackward(set1, set2);
                     ctx.closePath();
+                    ctx.clip(); 
 
-                    ctx.fillStyle = fillColor;
-                    ctx.fill();
+                    ctx.strokeStyle = "rgba(255, 0, 0, 0.55)";
+                    ctx.lineWidth = 1.5;
 
-                    const minY = Math.min(power1.y, power2.y, set1.y, set2.y);
-                    const maxY = Math.max(power1.y, power2.y, set1.y, set2.y);
-                    const height = maxY - minY;
-
-                    ctx.save();
-                    try {
+                    for (let x = leftX - height; x < rightX + height; x += spacing) {
                         ctx.beginPath();
-                        ctx.moveTo(power1.x, power1.y);
-                        drawSegmentForward(power1, power2);
-                        ctx.lineTo(set2.x, set2.y);
-                        drawSegmentBackward(set1, set2);
-                        ctx.closePath();
-                        ctx.clip(); 
-
-                        ctx.strokeStyle = "rgba(255, 0, 0, 0.55)";
-                        ctx.lineWidth = 1.5;
-
-                        for (let x = leftX - height; x < rightX + height; x += spacing) {
-                            ctx.beginPath();
-                            ctx.moveTo(x, maxY + height);
-                            ctx.lineTo(x + height, minY - height);
-                            ctx.stroke();
-                        }
-                    } finally {
-                        ctx.restore();
+                        ctx.moveTo(x, maxY + height);
+                        ctx.lineTo(x + height, minY - height);
+                        ctx.stroke();
                     }
-                        
-                }
+                } finally {
+                    ctx.restore();
+                }                       
             }
         } finally {
             ctx.restore();
@@ -2026,5 +2070,15 @@ function setReadOnlyGrid() {
     if(upravljiva_potrosnja_flag == 0){
         document.getElementById("Upravljiva_potrosnja").style.display = 'none';
         document.getElementById("Upravljiva_potrosnja_status").style.display = 'none';
+        document.getElementById("status_minera_label").innerHTML = "";
+        
+    }
+    if(SOC_BAT_AUTO != -1){
+        document.getElementById("auto_soc_label").style.display = 'none';
+        document.getElementById("podeseni_soc_label").style.display = 'block';
+    } 
+    else{
+        document.getElementById("podeseni_soc_label").style.display = 'none';
+        document.getElementById("auto_soc_label").style.display = 'block';
     }
 }
