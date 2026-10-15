@@ -321,13 +321,8 @@ function updateSpecialValues() {
 
     // U modu 1 EMS prati setpoint agregatora i bez aktivacije; kad aktivacija krene, ide Active.
     if (DOM.act_viz) {
-        const statusText = DOM.act_viz.querySelector(".status-window__text");
-        const statusValue = ackt == 1 ? "Aktivna" : "Neaktivna";
-        if (statusText) {
-            statusText.textContent = statusValue;
-        } else {
-            DOM.act_viz.textContent = statusValue;
-        }
+        DOM.act_viz.textContent =
+            ackt == 1 ? T.aktivna : (act_rucno == 1 ? T.pracenje_setpointa : T.neaktivna);
     }
     
     if (DOM.infoArbitraza) {

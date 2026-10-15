@@ -263,12 +263,10 @@
                         <span class="energy-label">BASELINE: </span>
                         <span class="register-value energy_label_font scada-main-type" id="Baseline">--</span>
                         <span class="scada-main-type"> kW</span>
-                    </div>       
-                </div>         
-                
-
-                <div class="setpoint-row scada-title setpoint-mainline">
-                    <span class="register-label" style="margin-bottom: 0px;">                        
+                    </div>              
+                </div>                  
+                <div class="setpoint-row scada-title " style="padding-bottom: 0px; margin-bottom: 0px;">
+                    <span class="register-label" style="margin-bottom: 0px;">                       
                         {{ t.aktivacija_setpoint }}:
                     </span>
                     <div class="text-right" style="padding-bottom: 6px;">
@@ -278,11 +276,7 @@
                 </div>
                     
                 <div id="act_viz" class="status-window on_bottom" role="status" aria-live="polite" data-state="unknown">
-                    <svg class="status-window__icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                        <path d="M12 2v10" />
-                        <path d="M18.36 6.64a9 9 0 1 1-12.73 0" />
-                    </svg>
-                    <span class="status-window__text">{{ t.neaktivna }}</span>
+                    {{ t.neaktivna }}
                 </div>
             </div>
             <div class="scada-item ">
@@ -400,7 +394,7 @@
                     </div>
                     <div style="display: flex;">
                         <div class="energy-line" style="width: 50%;"></div>            
-                        <div class="energy-line energy-line--total" style="width: 50%; gap:3px">
+                        <div class="energy-line" style="width: 50%; justify-content: flex-end; gap:3px">
                             <span class="energy-label">{{ t.ukupno }}: </span>
                             <span class="register-value energy_label_font" id="cijenaSum">--</span>
                             <span class="scada-main-type"> €</span>
